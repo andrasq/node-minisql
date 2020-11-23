@@ -8,6 +8,12 @@
   "readme": "see Readme.md in the repo",
   "repository": { "type": "git", "url": "git://github.com/andrasq/node-minisql" },
 
+  "dependencies": {
+    "qbuffer": "1.4.0"
+  },
+  "testDependencies": {
+  },
+
   "scripts": {
   }
 }
