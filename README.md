@@ -39,6 +39,35 @@ Example
     })
 
 
+Api
+---
+
+### db = new Db()
+
+### db.connect( creds, onConnect(err) )
+
+Creds:
+- host - hostname to connect to.  The default is localhost at `0.0.0.0`.
+- port - port to connect to.  Default is `3306`.
+- user - username to authenticate as.  Required; no default.
+- password - password for the user.  No default.
+- database - database to connect to, if any.  No default.
+
+
+### db.query( sql, callback(err, result) )
+
+    db.query("SELECT * FROM test LIMIT 10", function(err, rows) {
+        // ...
+    })
+
+
+Todo
+----
+
+- split query() and execute(), make query() test for TextResults packet, execute for OK packet
+- `?` substitution
+
+
 Changelog
 ---------
 
