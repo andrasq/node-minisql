@@ -1,0 +1,13 @@
+{
+  "name": "minisql",
+  "version": "0.0.0",
+  "description": "tiny simplified mysql driver",
+  "license": "Apache-2.0",
+
+  "author": "andrasq",
+  "readme": "see Readme.md in the repo",
+  "repository": { "type": "git", "url": "git://github.com/andrasq/node-minisql" },
+
+  "scripts": {
+  }
+}
