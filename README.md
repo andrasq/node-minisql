@@ -66,6 +66,7 @@ Todo
 
 - split query() and execute(), make query() test for TextResults packet, execute for OK packet
 - `?` substitution
+- support multi-paket responses larger than 16 mb
 
 
 Changelog
