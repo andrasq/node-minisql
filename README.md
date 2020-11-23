@@ -23,8 +23,16 @@ Example
 -------
 
     mysql = require('minisql')
+
+    creds = {
+        user: 'andras', password: '****',
+        host: 'localhost', port: 3306, database: 'test',
+    }
+
     db = new mysql.Db()
-    db.createConnection({ host: 'localhost', port: 3306 }, function(err) {
+    db.connect(creds, function(err) {
+        console.log('connected')
+
         db.query("SELECT 1, 'two', NOW();", function(err, rows) {
             // rows => [ [ 1, 'two', '2020-11-23 00:56:15' ], ]
         })
