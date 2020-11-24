@@ -16,7 +16,7 @@ Limitations:
 
 - returns an array of values, not objects.  The column names and types are returned in `rows.columns`
 - returns datetimes as strings, not Date objects
-- no decimals, no Date objects, no longlong integers
+- longlongs, decimals, dates, timestamps, enums returned as strings
 
 
 Example
