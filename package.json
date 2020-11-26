@@ -17,7 +17,7 @@
   },
 
   "scripts": {
-    "test": "qnit test/test-*",
+    "test": "qnit -t 10000 test/test-*",
     "coverage": "nyc -r text -r lcov npm test",
     "clean": "rm -rf coverage .nyc_output"
   }
