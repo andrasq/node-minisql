@@ -17,6 +17,7 @@ timestamps are passed as strings.
 
 Limitations:
 
+- requires Protocol::41 for authentication
 - returns an array of value arrays, not an array of objects
 - longlongs, decimals returned as numbers (beware the loss of precision)
 - dates, timestamps, enums returned as strings
