@@ -10,15 +10,15 @@
   "repository": { "type": "git", "url": "git://github.com/andrasq/node-minisql" },
 
   "dependencies": {
-    "q-utf8": "0.1.3",
-    "qbuffer": "1.4.0"
+    "q-utf8": "0.1.3"
   },
   "devDependencies": {
+    "qmock": "0.16.1"
   },
 
   "scripts": {
     "test": "qnit test/test-*",
-    "coverage": "nyc -r text -r lcov qnit test/*",
+    "coverage": "nyc -r text -r lcov npm test",
     "clean": "rm -rf coverage .nyc_output"
   }
 }

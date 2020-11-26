@@ -1,5 +1,6 @@
 'use strict';
 
+var qibl = require('qibl')
 var Db = require('./').Db
 
 function microtime() {
@@ -14,8 +15,8 @@ var db = new Db();
 var t0 = microtime();
 db.connect({ hostname: 'localhost', 'port': 3306, user: 'andras', password: '', database: 'test' }, function(err) {
     var t1 = microtime();
-    if (err) throw err;
 console.log("AR: auth time (%d ms)", t1 - t0);
+    if (err) throw err;
 
     // var sql = 'SELECT 1, "foo", NOW(), NOW()';
     var sql = 'SELECT * FROM queue';
@@ -24,12 +25,12 @@ console.log("AR: auth time (%d ms)", t1 - t0);
     // 1.16ms, vs 1.136 mariadb
     //var sql = 'SELECT * from test;'
 
-console.log("AR: writig query");
+console.log("AR: writing query (%s)", qibl.str_truncate(sql, 40));
     db.query('SELECT 1', function() {
         t1 = microtime();
         db.query(sql, function(err, rows) {
             var t2 = microtime();
-console.log("AR: got the rows in (%d ms)", t2 - t1, rows);
+console.log("AR: got the rows in (%d ms)", t2 - t1, t1, t2, microtime(), rows);
 
             var durations = new Array();
             t2 = microtime();
