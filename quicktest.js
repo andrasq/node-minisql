@@ -30,7 +30,8 @@ console.log("AR: writing query (%s)", qibl.str_truncate(sql, 40));
         t1 = microtime();
         db.query(sql, function(err, rows) {
             var t2 = microtime();
-console.log("AR: got the rows in (%d ms)", t2 - t1, t1, t2, microtime(), rows);
+console.log("AR: got the rows in %d (%d ms)", t2 - t1, rows.duration_ms);
+//console.log("AR: got the rows in %d (%d ms)", t2 - t1, rows.duration_ms, rows);
 
             var durations = new Array();
             t2 = microtime();
@@ -44,7 +45,7 @@ console.log("AR: got the rows in (%d ms)", t2 - t1, t1, t2, microtime(), rows);
                 })
             })(function() {
                 var t3 = microtime()
-console.log("AR: 10 queries of '%s' in total %d ms: %s", sql, t3 - t2, durations.join(', '));
+// console.log("AR: 10 queries of '%s' in total %d ms: %s", sql, t3 - t2, durations.join(', '));
                 db.quit(function(err, buf) {
                     // COM_QUIT does not respond, we never call to here
 console.log("AR: did quit", err, buf);
