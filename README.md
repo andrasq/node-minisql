@@ -1,8 +1,11 @@
 minisql
 =======
 
-Very small simplified experimental mysql database driver, functional but with deliberately
-limited features.  _WORK IN PROGRESS_
+Very small barebones mysql database driver, with deliberately limited features.  The goal is
+a no-frills, low overhed command line interface to the database.  The current version 0.2.0
+is implemented in 700 lines of javascript vs 8000-12000 for the traditional packages.
+
+_WORK IN PROGRESS_
 
 
 Overview
@@ -14,9 +17,9 @@ timestamps are passed as strings.
 
 Limitations:
 
-- returns an array of values, not objects.  The column names and types are returned in `rows.columns`
-- returns datetimes as strings, not Date objects
-- longlongs, decimals, dates, timestamps, enums returned as strings
+- returns an array of value arrays, not an array of objects
+- longlongs, decimals returned as numbers (beware the loss of precision)
+- dates, timestamps, enums returned as strings
 
 
 Example
@@ -44,7 +47,13 @@ Api
 
 ### db = new Db()
 
+Create a new database connection manager.  This is a fast low-cost step, it just sets up
+internal structures, must still `connect` to the database.
+
 ### db.connect( creds, onConnect(err) )
+
+Connect to the databaes, authenticate with the provided credentials, and configure the
+connection.
 
 Creds:
 - host - hostname to connect to.  The default is localhost at `0.0.0.0`.
@@ -52,7 +61,8 @@ Creds:
 - user - username to authenticate as.  Required; no default.
 - password - password for the user.  No default.
 - database - database to connect to, if any.  No default.
-
+- setup - TODO: array of sql commands to run before using the connection
+- teardown - TODO: array of sql commands to run before closing the connection
 
 ### db.query( sql, callback(err, result) )
 
@@ -60,14 +70,20 @@ Creds:
         // ...
     })
 
+### db.end( callback(err) )
+
+Close the connection.  On a normal close the callback is _not_ called, but any errors will
+be returned.
+
 
 Todo
 ----
 
 - split query() and execute(), make query() test for TextResults packet, execute for OK packet
+- provide alternate api that returns rows of name-value hashes, not arrays of values
 - `?` substitution
-- support multi-paket responses larger than 16 mb
 - connection pools (db sets)
+- maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
 
 
 Changelog
