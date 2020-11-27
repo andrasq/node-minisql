@@ -8,7 +8,8 @@
 var assert = require('assert')
 var Db = require('../').Db
 
-var creds = { host: 'localhost', port: 3306, database: 'test', user: 'andras', password: process.env.DBPASSWORD }
+var creds = { host: 'localhost', port: 3306, database: 'test',
+              user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
 
 var setImmediate = global.setImmediate || process.nextTick
 
