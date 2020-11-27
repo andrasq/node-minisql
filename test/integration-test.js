@@ -24,8 +24,8 @@ function runSteps(steps, callback) {
 
 function repeatFor(n, proc, callback) {
     function _loop(err) {
-        if (err) return callback(err);
-        (n-- > 0) ? proc(_loop) : callback()
+        if (err || n-- <= 0) return callback(err)
+        proc(_loop)
     }
     _loop();
 }

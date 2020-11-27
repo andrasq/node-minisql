@@ -3,8 +3,9 @@
 var qibl = require('qibl')
 var Db = require('./').Db
 
+var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
 function microtime() {
-    var ms = process.hrtime();
+    var ms = hrtime();
     return ms[0] * 1000 + ms[1] / 1e6;
 }
 
