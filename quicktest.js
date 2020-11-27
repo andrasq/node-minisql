@@ -28,8 +28,9 @@ console.log("AR: auth time (%d ms)", t1 - t0);
 console.log("AR: writing query (%s)", qibl.str_truncate(sql, 40));
     db.query('SELECT 1', function() {
         t1 = microtime();
-        db.query(sql, function(err, rows, info) {
+        db.query(sql, function(err, rows) {
             var t2 = microtime();
+            var info = db.queryInfo()
 console.log("AR: got the rows in %d (%d ms)", t2 - t1, info.duration_ms);
 //console.log("AR: got the rows in %d (%d ms)", t2 - t1, info.duration_ms, rows);
 
