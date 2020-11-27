@@ -18,7 +18,7 @@
 
   "scripts": {
     "test": "qnit test/test-*",
-    "coverage": "nyc -r text -r lcov qnit -t 10000 test/",
+    "coverage": "nyc -r text -r lcov qnit -t 10000 test/*test*.js",
     "clean": "rm -rf coverage .nyc_output"
   }
 }
