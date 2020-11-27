@@ -67,6 +67,28 @@ describe('integration tests', function() {
                 })
             })
         })
+        it('connects to a named database', function(done) {
+            var creds = { user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD, database: 'test' }
+            db.connect(creds, function(err) {
+                assert.ifError(err)
+                db.query('SHOW TABLES', function(err, rows) {
+                    assert.ifError(err)
+                    assert.ok(rows.length > 1)
+                    done()
+                })
+            })
+        })
+        it('connects without a database', function(done) {
+            var creds = { user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
+            db.connect(creds, function(err) {
+                assert.ifError(err)
+                db.query('SHOW TABLES', function(err, rows) {
+                    assert.ok(err)
+                    assert.ok(/No database/.test(err.message))
+                    done()
+                })
+            })
+        })
     })
 
     describe('ping', function() {
