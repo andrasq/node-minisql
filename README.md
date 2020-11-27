@@ -53,7 +53,7 @@ internal structures, must still `connect` to the database.
 
 ### db.connect( creds, onConnect(err) )
 
-Connect to the databaes, authenticate with the provided credentials, and configure the
+Connect to the database, authenticate with the provided credentials, and configure the
 connection.
 
 Creds:
@@ -65,7 +65,10 @@ Creds:
 - setup - TODO: array of sql commands to run before using the connection
 - teardown - TODO: array of sql commands to run before closing the connection
 
-### db.query( sql, callback(err, result) )
+### db.query( sql, callback(err, result ) )
+
+Run the SQL query on the server, and return its response.  The response may be a result set of a
+status object.
 
     db.query("SELECT * FROM test LIMIT 10", function(err, rows) {
         // ...
