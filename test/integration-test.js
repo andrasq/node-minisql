@@ -149,7 +149,7 @@ describe('integration tests', function() {
                 done()
             })
         })
-        it('returns numbers, strings, floats, binary', function(done) {
+        it('returns numbers, strings, floats, binary, with column info', function(done) {
             runSteps([
                 function(next) {
                     db.query('CREATE TEMPORARY TABLE _junk (x INT, a CHAR(20), f FLOAT, b BLOB)', next)
@@ -160,9 +160,9 @@ describe('integration tests', function() {
                 function(next) {
                     db.query('SELECT * FROM _junk WHERE x % 2 = 1', next)
                 },
-                function(next, rows) {
+                function(next, rows, info) {
                     assert.equal(rows.length, 2)
-                    // TODO: assert.deepEqual(rows.columns.map((c) => c.name), ['x', 'a', 'f', 'b'])
+                    assert.deepEqual(info.columns.map((c) => c.name), ['x', 'a', 'f', 'b'])
                     assert.strictEqual(rows[0][0], 1)
                     assert.strictEqual(rows[0][1], 'aa')
                     assert.strictEqual(rows[0][2], 1.5)
@@ -192,16 +192,17 @@ describe('integration tests', function() {
         })
         it('can send and receive large commands spanning 2 packets', function(done) {
             var str1k = new Array(1001).join('x').slice()
-// NOTE: 60mb string crashes node-v10, v0.10, v4.4 (out of memory) -- but v5.8 is good to over 110mb
             var str20m = new Array(17001).join(str1k).slice()
             sql = 'SELECT "' + str20m + '" AS bulk';            // 10 bytes for the SELECT query + 17m
             var t1 = Date.now()
             db.query(sql, function(err, rows, info) {
                 var t2 = Date.now()
-                console.log("AR: 17m in %d (%d ms)", t2 - t1, rows && rows.duration_ms, info);
+                console.log("AR: 17m in %d (%d ms)", t2 - t1, info && info.duration_ms, info);
                 assert.ifError(err)
                 assert.equal(rows.length, 1)
                 assert.equal(rows[0][0], str20m)
+// console.log("AR: mem", process.memoryUsage())
+// 200mb string payload uses 1gb rss, 600mb heap, 432mb external.  250mb crashes.
                 done()
             })
         })
@@ -209,8 +210,8 @@ describe('integration tests', function() {
             var str1k = new Array(1001).join('x').slice()
             var str40m = new Array(35001).join(str1k).slice()
             sql = 'SELECT "' + str40m + '"';
-            db.query(sql, function(err, rows) {
-                console.log("AR: 34m in %d ms", rows && rows.duration_ms);
+            db.query(sql, function(err, rows, info) {
+                console.log("AR: 34m in %d ms", info && info.duration_ms);
                 assert.ifError(err)
                 assert.equal(rows.length, 1)
                 assert.equal(rows[0][0], str40m)
