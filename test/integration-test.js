@@ -155,6 +155,17 @@ describe('integration tests', function() {
                 done()
             })
         })
+        it('responds to LOCAL INFILE requests', function(done) {
+            db.query('CREATE TEMPORARY TABLE _junk (x INT)', function(err) {
+                assert.ifError(err)
+                db.query('LOAD DATA LOCAL INFILE "/dev/null" INTO TABLE _junk', function(err, packet) {
+                    assert.ok(err && packet)
+                    assert.ok(/not handled/, err.message)
+                    assert.equal(packet.filename, '/dev/null')
+                    done()
+                })
+            })
+        })
         it('returns timestamps as strings', function(done) {
             var t1 = Date.now(); t1 = new Date(t1 - t1 % 1000)
             db.query('SELECT "hello" AS txt, NOW() AS dt', function(err, rows) {
