@@ -90,4 +90,6 @@ Todo
 Changelog
 ---------
 
+- 0.3.0 - much faster queries
+- 0.2.0 - working, including multi-packet queries and responses
 - 0.1.0 - initial checkin of work in progress
