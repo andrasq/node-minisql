@@ -14,15 +14,20 @@ var creds = { host: 'localhost', port: 3306, database: 'test',
 var setImmediate = global.setImmediate || process.nextTick
 
 function runSteps(steps, callback) {
-    var ix = 0, ret1, ret1
-    function _loop(r1, r2) {
-        if (ix >= steps.length) return callback(null, r1, r2)
-        steps[ix++](function(err, v1, v2) {
-            if (err) return callback(err)
-            _loop(v1, v2)
-        }, r1, r2)
+    var ix = 0
+    function _loop(err, r1, r2) {
+        if (err || ix >= steps.length) return callback(err, r1, r2)
+        steps[ix++](_loop, r1, r2)
     }
     _loop()
+}
+
+function repeatFor(n, proc, callback) {
+    function _loop(err) {
+        if (err) return callback(err);
+        (n-- > 0) ? proc(_loop) : callback()
+    }
+    _loop();
 }
 
 describe('integration tests', function() {
@@ -166,6 +171,14 @@ describe('integration tests', function() {
                     next()
                 },
             ], done)
+        })
+        it('returns metadata', function(done) {
+            db.query('SHOW DATABASES', function(err, rows) {
+                assert.ifError(err)
+                assert.ok(rows.length >= 2)
+                assert.equal(typeof rows[0][0], 'string')
+                done()
+            })
         })
         it('can send 2^16-1 bytes', function(done) {
             // 'SELECT ""' is 9 bytes, account for them
