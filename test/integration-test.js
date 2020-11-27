@@ -69,6 +69,16 @@ describe('integration tests', function() {
         })
     })
 
+    describe('ping', function() {
+        it('gets response from db', function(done) {
+            db.ping(function(err, res) {
+                assert.ifError(err)
+                assert.ok(res)
+                done()
+            })
+        })
+    })
+
     describe('execute', function() {
         it('can execute commands', function(done) {
             db.query('USE test', function(err) {
