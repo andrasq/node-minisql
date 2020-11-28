@@ -2,6 +2,8 @@
 
 'use strict';
 
+if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
+
 var timeit = require('qtimeit');
 
 var minisql, mysql, mysql2, mariadb;

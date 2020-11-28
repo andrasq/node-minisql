@@ -34,8 +34,8 @@ describe('integration tests', function() {
     var db;
 
     beforeEach(function(done) {
-        db = new Db()
-        db.connect(creds, function(err) {
+        db = minisql.createConnection(creds)
+        db.connect(function(err) {
             if (err) return done(err)
             // TODO: allow for an auto-run configScript to init the system vars
             db.query('set global max_allowed_packet = 1000000000;', done)
@@ -193,7 +193,8 @@ describe('integration tests', function() {
             db.query('SELECT * FROM information_schema.collations WHERE id = 8', function(err, rows) {
                 assert.ifError(err)
                 var info = db.queryInfo()
-                assert.deepEqual(info.columns[2], { col: 2, name: 'ID', type: 8, table: 'collations' })
+                // assert.deepEqual(info.columns[2], { col: 2, name: 'ID', type: 8, table: 'collations' })
+                assert.deepEqual(info.columns[2], { col: 2, name: 'ID', type: 8 })
                 done()
             })
         })
@@ -322,6 +323,15 @@ describe('integration tests', function() {
                 function _call(cb) {
                     db.query('SELECT 1', cb)
                 }
+            })
+        })
+    })
+    describe('select', function() {
+        it('returns hashes', function(done) {
+            db.select('SELECT 1 AS a, "two" as be, 3.5 as cee', function(err, rows) {
+                assert.ifError(err)
+                assert.deepEqual(rows[0], { a: 1, be: 'two', cee: 3.5 })
+                done()
             })
         })
     })

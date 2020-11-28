@@ -1,6 +1,6 @@
 {
   "name": "minisql",
-  "version": "0.5.1-dev",
+  "version": "0.5.1",
   "description": "tiny simplified mysql driver",
   "license": "Apache-2.0",
   "main": "lib/qsql",
@@ -19,7 +19,7 @@
 
   "scripts": {
     "test": "qnit test/test-*",
-    "FIXME": "integration tests can only be run locally, do not include in coverage",
+    "WARNING": "integration tests can only be run locally, do not include in coverage",
     "coverage": "nyc -r text -r lcov qnit -t 10000 test/*test*.js",
     "clean": "rm -rf coverage .nyc_output"
   }
