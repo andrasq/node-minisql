@@ -1,12 +1,13 @@
 {
   "name": "minisql",
-  "version": "0.4.0",
+  "version": "0.4.1-dev",
   "description": "tiny simplified mysql driver",
   "license": "Apache-2.0",
   "main": "lib/qsql",
+  "files": ["lib", "README.md"],
 
   "author": "andrasq",
-  "readme": "see Readme.md in the repo",
+  "readme": "see README.md in the repo",
   "repository": { "type": "git", "url": "git://github.com/andrasq/node-minisql" },
 
   "dependencies": {
@@ -18,6 +19,7 @@
 
   "scripts": {
     "test": "qnit test/test-*",
+    "FIXME": "integration tests can only be run locally, do not include in coverage",
     "coverage": "nyc -r text -r lcov qnit -t 10000 test/*test*.js",
     "clean": "rm -rf coverage .nyc_output"
   }
