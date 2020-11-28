@@ -15,20 +15,18 @@ var setImmediate = global.setImmediate || process.nextTick
 var fromBuf = Buffer.from ? Buffer.from : Buffer
 
 function runSteps(steps, callback) {
-    var ix = 0
-    function _loop(err, r1, r2) {
-        if (err || ix >= steps.length) return callback(err, r1, r2)
-        steps[ix++](_loop, r1, r2)
-    }
-    _loop()
+    var ix = 0;
+    (function _loop(err, a1, a2) {
+        if (err || ix >= steps.length) return callback(err, a1, a2);
+        steps[ix++](_loop, a1, a2);
+    })()
 }
 
 function repeatFor(n, proc, callback) {
-    function _loop(err) {
-        if (err || n-- <= 0) return callback(err)
-        proc(_loop)
-    }
-    _loop();
+    (function _loop(err) {
+        if (err || n-- <= 0) return callback(err);
+        proc(_loop);
+    })()
 }
 
 describe('integration tests', function() {
