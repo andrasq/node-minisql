@@ -2,7 +2,7 @@
 
 'use strict';
 
-if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
+if (!require('path').basename(process.argv[1]).match(/benchmark/)) return
 
 var timeit = require('qtimeit');
 
