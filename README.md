@@ -90,6 +90,7 @@ Todo
 
 - connection pools (db sets)
 - maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
+- change api to `minisql.createConnection(creds).connect()` like mysql
 
 
 Changelog
