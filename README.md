@@ -27,17 +27,12 @@ Limitations:
 Example
 -------
 
-    mysql = require('minisql')
+    minisql = require('minisql')
 
-    creds = {
-        user: 'andras', password: '****',
-        host: 'localhost', port: 3306, database: 'test',
-    }
+    creds = { user: 'andras', password: '****',
+              host: 'localhost', port: 3306, database: 'test' }
 
-    db = new mysql.Db()
-    db.connect(creds, function(err) {
-        console.log('connected')
-
+    db = minisql.createConnection(creds).connect(function(err) {
         db.query("SELECT 1, 'two', NOW();", function(err, rows) {
             // rows => [ [ 1, 'two', '2020-11-23 00:56:15' ], ]
         })
@@ -66,7 +61,7 @@ Options:
 Connect to the database, authenticate with the credentials supplied to createConnection, and
 configure the connection.
 
-### db.query( sql, [params], callback(err, result ) )
+### db.query( sql, [params,] callback(err, result) )
 
 Run the SQL query on the server, and return its response.  The response may be a an array of
 rows or a status.  The params array, if provided, will be interpolated into the query string
@@ -77,13 +72,12 @@ To obtain information about the query, including the column names, use `db.query
 returns timing `info.duration_ms`, and the column names with eg column 0 in `info.columns[0].name`.
 
     db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
-        // => up to 10 rows
+        // => up to 10 rows, each row an array of values
     })
 
-### db.end( callback(err) )
+### db.end( [callback(err)] )
 
-Close the connection.  On a normal close the callback is _not_ called, but any errors will
-be returned.
+Close the connection.
 
 
 Todo
