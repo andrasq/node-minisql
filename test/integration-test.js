@@ -12,6 +12,7 @@ var creds = { host: 'localhost', port: 3306, database: 'test',
               user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
 
 var setImmediate = global.setImmediate || process.nextTick
+var fromBuf = Buffer.from ? Buffer.from : Buffer
 
 function runSteps(steps, callback) {
     var ix = 0
@@ -237,6 +238,15 @@ describe('integration tests', function() {
                 assert.ok(rows.length >= 2)
                 assert.equal(typeof rows[0][0], 'string')
                 done()
+            })
+        })
+        it('interpolates arguments into the query', function(done) {
+            var args = [1, 'two', fromBuf([0x41, 0x42, 0x43]), [3.5, 'four']]
+            db.query('SELECT ?, ?, ?, ?', args, function(err, rows) {
+                assert.ifError(err)
+                // the buffer is received as a binary string but is returned as a string
+                assert.deepEqual(rows[0], [1, 'two', 'ABC', 3.5, 'four'])
+                done();
             })
         })
         it('can send 2^16-1 bytes', function(done) {
