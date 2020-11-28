@@ -88,8 +88,6 @@ be returned.
 Todo
 ----
 
-- split query() and execute(), make query() test for TextResults packet, execute for OK packet
-- provide alternate api that returns rows of name-value hashes, not arrays of values
 - connection pools (db sets)
 - maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
 
