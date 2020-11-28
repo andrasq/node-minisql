@@ -3,7 +3,7 @@ minisql
 [![Build Status](https://travis-ci.org/andrasq/node-minisql.svg?branch=master)](https://travis-ci.org/andrasq/node-minisql)
 
 Very small barebones mysql database driver, with deliberately limited features.  The goal is
-a no-frills, low overhed command line interface to the database.  The current version 0.5.0
+a no-frills, low overhed interface to the database command line.  The current version 0.5.0
 is 800 lines of javascript, 1/20th the size of the traditional packages.
 
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
@@ -29,7 +29,7 @@ Example
 
     minisql = require('minisql')
 
-    creds = { user: 'andras', password: '****',
+    creds = { user: process.env.DBUSER, password: process.env.DBPASSWORD,
               host: 'localhost', port: 3306, database: 'test' }
 
     db = minisql.createConnection(creds).connect(function(err) {
