@@ -2,10 +2,10 @@ minisql
 =======
 
 Very small barebones mysql database driver, with deliberately limited features.  The goal is
-a no-frills, low overhed command line interface to the database.  The current version 0.2.0
-is implemented in 700 lines of javascript vs 8000-12000 for the traditional packages.
+a no-frills, low overhed command line interface to the database.  The current version 0.5.0
+is 800 lines of javascript, 1/20th the size of the traditional packages.
 
-_WORK IN PROGRESS_
+Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
 
 Overview

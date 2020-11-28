@@ -47,7 +47,8 @@ runSteps([
         })
     },
     function(next) {
-        var sql = 'SELECT 1';
+        // var sql = 'SELECT 1';
+        var sql = 'SELECT 1, "two", 3.5';
         runQuery(sql, next);
     },
     function(next) {
