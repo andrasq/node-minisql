@@ -65,13 +65,18 @@ Creds:
 - setup - TODO: array of sql commands to run before using the connection
 - teardown - TODO: array of sql commands to run before closing the connection
 
-### db.query( sql, callback(err, result ) )
+### db.query( sql, [params], callback(err, result ) )
 
-Run the SQL query on the server, and return its response.  The response may be a result set of a
-status object.
+Run the SQL query on the server, and return its response.  The response may be a an array of
+rows or a status.  The params array, if provided, will be interpolated into the query string
+with one parameter replacing each `?` in the query.  Numbers, blobs and arrays are recognized,
+everything else is converted to string.
 
-    db.query("SELECT * FROM test LIMIT 10", function(err, rows) {
-        // ...
+To obtain information about the query, including the column names, use `db.queryInfo()`.  It
+returns timing `info.duration_ms`, and the column names with eg column 0 in `info.columns[0].name`.
+
+    db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
+        // => up to 10 rows
     })
 
 ### db.end( callback(err) )
@@ -85,7 +90,6 @@ Todo
 
 - split query() and execute(), make query() test for TextResults packet, execute for OK packet
 - provide alternate api that returns rows of name-value hashes, not arrays of values
-- `?` substitution
 - connection pools (db sets)
 - maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
 
@@ -93,6 +97,7 @@ Todo
 Changelog
 ---------
 
+- 0.4.0 - query param interpolation
 - 0.3.0 - much faster queries
 - 0.2.0 - working, including multi-packet queries and responses
 - 0.1.0 - initial checkin of work in progress
