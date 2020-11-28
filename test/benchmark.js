@@ -16,6 +16,7 @@ var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database
 
 console.log("AR: Starting.");
 var i = 1000000;
+var str200k = new Array(2e5 + 1).join('x')
 var sql;
 runSteps([
     function(next) {
@@ -53,6 +54,9 @@ runSteps([
     },
     function(next) {
         runQuery('SELECT * FROM information_schema.collations LIMIT 100', next);
+    },
+    function(next) {
+        runQuery("SELECT '" + str200k + "'", next);
     },
     function(next) {
         dbMysql && dbMysql.end();
