@@ -194,7 +194,7 @@ describe('integration tests', function() {
                 assert.ifError(err)
                 var info = db.queryInfo()
                 // assert.deepEqual(info.columns[2], { col: 2, name: 'ID', type: 8, table: 'collations' })
-                assert.deepEqual(info.columns[2], { col: 2, name: 'ID', type: 8 })
+                assert.deepEqual(info.columns[2], { name: 'ID', type: 8 })
                 done()
             })
         })
