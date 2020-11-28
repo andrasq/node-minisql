@@ -1,5 +1,6 @@
 minisql
 =======
+[![Build Status](https://travis-ci.org/andrasq/node-minisql.svg?branch=master)](https://travis-ci.org/andrasq/node-minisql)
 
 Very small barebones mysql database driver, with deliberately limited features.  The goal is
 a no-frills, low overhed command line interface to the database.  The current version 0.5.0
