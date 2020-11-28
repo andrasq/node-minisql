@@ -16,7 +16,7 @@ var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database
 
 console.log("AR: Starting.");
 var i = 1000000;
-var str200k = new Array(2e5 + 1).join('x')
+var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
 runSteps([
     function(next) {
@@ -47,16 +47,20 @@ runSteps([
         })
     },
     function(next) {
-        runQuery('SELECT ' + i, next);
+        var sql = 'SELECT 1';
+        runQuery(sql, next);
     },
     function(next) {
-        runQuery('SELECT COUNT(*) FROM information_schema.collations', next);
+        var sql = 'SELECT COUNT(*) FROM information_schema.collations';
+        runQuery(sql, next);
     },
     function(next) {
-        runQuery('SELECT * FROM information_schema.collations LIMIT 100', next);
+        var sql = 'SELECT * FROM information_schema.collations LIMIT 100';
+        runQuery(sql, next);
     },
     function(next) {
-        runQuery("SELECT '" + str200k + "'", next);
+        var sql = "SELECT '" + str200k + "'";
+        runQuery(sql, next);
     },
     function(next) {
         dbMysql && dbMysql.end();
@@ -72,6 +76,7 @@ function(err) {
 
 
 function runQuery(sql, callback) {
+    console.log("-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
     var loopCount = 2;
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
