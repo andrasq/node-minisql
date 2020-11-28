@@ -162,6 +162,13 @@ describe('integration tests', function() {
                 done()
             })
         })
+        it('returns duplicate columns', function(done) {
+            db.query('SELECT 1 AS a, 2 AS a, 3 AS a', function(err, rows) {
+                assert.ifError(err)
+                assert.equal(rows[0].length, 3)
+                done()
+            })
+        })
         it('returns column info', function(done) {
             db.query('SELECT * FROM information_schema.collations WHERE id = 8', function(err, rows) {
                 assert.ifError(err)
