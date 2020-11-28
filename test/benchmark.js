@@ -17,7 +17,6 @@ minisql = require('../');
 var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database: 'test', port: 3306 };
 
 console.log("AR: Starting.");
-var i = 1000000;
 var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
 runSteps([

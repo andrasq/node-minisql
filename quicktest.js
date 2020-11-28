@@ -1,7 +1,7 @@
 'use strict';
 
 var qibl = require('qibl')
-var Db = require('./').Db
+var sql = require('./')
 
 var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
 function microtime() {

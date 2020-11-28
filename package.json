@@ -1,9 +1,9 @@
 {
   "name": "minisql",
-  "version": "0.5.3-dev",
-  "description": "tiny simplified mysql driver",
+  "version": "0.5.3",
+  "description": "small, quick mysql database connector",
   "license": "Apache-2.0",
-  "main": "lib/qsql",
+  "main": "lib/minisql",
   "files": ["lib", "README.md"],
 
   "author": "andrasq",
@@ -20,7 +20,7 @@
   "scripts": {
     "test": "qnit test/test-*",
     "WARNING": "integration tests can only be run locally, do not include in coverage",
-    "coverage": "nyc -r text -r lcov qnit -t 10000 test/*test*.js",
+    "coverage": "nyc -r text -r lcov qnit -t 10000 test/test*.js",
     "clean": "rm -rf coverage .nyc_output"
   }
 }
