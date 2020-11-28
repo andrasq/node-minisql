@@ -32,7 +32,7 @@ runSteps([
     },
     function(next) {
         if (!mysql2) return next();
-        // reading the version errors out with "package not exported"
+        // reading the version errors out with "package not exported" under node-v13 and up
         try { console.log("mysql2 %s", require('mysql2/package.json').version) } catch(e) {}
         dbMysql2 = mysql2.createConnection(creds);
         dbMysql2.connect(next);
