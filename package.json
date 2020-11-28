@@ -1,6 +1,6 @@
 {
   "name": "minisql",
-  "version": "0.4.1-dev",
+  "version": "0.5.0-dev",
   "description": "tiny simplified mysql driver",
   "license": "Apache-2.0",
   "main": "lib/qsql",

@@ -6,7 +6,8 @@
 // run by hand, not part of the test-* suite
 
 var assert = require('assert')
-var Db = require('../').Db
+var minisql = require('../')
+var Db = minisql.Db
 
 var creds = { host: 'localhost', port: 3306, database: 'test',
               user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
@@ -84,6 +85,17 @@ describe('integration tests', function() {
                 db.query('SHOW TABLES', function(err, rows) {
                     assert.ok(err)
                     assert.ok(/No database/.test(err.message))
+                    done()
+                })
+            })
+        })
+        it('connects with createConnection', function(done) {
+            var creds = { user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
+            minisql.createConnection(creds).connect(function(err) {
+                assert.ifError()
+                db.query('SELECT 1', function(err, rows) {
+                    assert.ifError(err)
+                    assert.deepEqual(rows, [ [1] ])
                     done()
                 })
             })

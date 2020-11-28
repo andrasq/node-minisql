@@ -46,24 +46,24 @@ Example
 Api
 ---
 
-### db = new Db()
+### db = minisql.createConnection( options )
 
 Create a new database connection manager.  This is a fast low-cost step, it just sets up
-internal structures, must still `connect` to the database.
+internal structures, must still `connect` to the database.  Equivalent to `new Db(options)`.
 
-### db.connect( creds, onConnect(err) )
-
-Connect to the database, authenticate with the provided credentials, and configure the
-connection.
-
-Creds:
-- host - hostname to connect to.  The default is localhost at `0.0.0.0`.
-- port - port to connect to.  Default is `3306`.
+Options:
 - user - username to authenticate as.  Required; no default.
 - password - password for the user.  No default.
+- host - hostname to connect to.  The default is localhost at `0.0.0.0`.
+- port - port to connect to.  Default is `3306`.
 - database - database to connect to, if any.  No default.
 - setup - TODO: array of sql commands to run before using the connection
 - teardown - TODO: array of sql commands to run before closing the connection
+
+### db.connect( onConnect(err) )
+
+Connect to the database, authenticate with the credentials supplied to createConnection, and
+configure the connection.
 
 ### db.query( sql, [params], callback(err, result ) )
 
@@ -90,12 +90,13 @@ Todo
 
 - connection pools (db sets)
 - maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
-- change api to `minisql.createConnection(creds).connect()` like mysql
+- "raw" mode, return response packets in buffer(s) without decoding (for trans-shipment)
 
 
 Changelog
 ---------
 
+- 0.5.0 - `createConnection`
 - 0.4.0 - query param interpolation
 - 0.3.0 - much faster queries
 - 0.2.0 - working, including multi-packet queries and responses
