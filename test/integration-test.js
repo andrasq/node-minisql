@@ -42,7 +42,7 @@ describe('integration tests', function() {
     })
 
     afterEach(function(done) {
-        db.end(done)
+        db.end(function(err) { done() })
     })
 
     describe('connect', function() {
@@ -122,6 +122,15 @@ describe('integration tests', function() {
                 assert.equal(typeof err.errorMessage, 'string')
                 assert.equal(typeof err.errorCode, 'number')
                 done()
+            })
+        })
+        it('returns connection errors', function(done) {
+            db.end(function() {
+                db.query('SELECT 1', function(err, res) {
+                    assert.ok(err)
+                    assert.ok(/connection closed/.test(err.message))
+                    done()
+                })
             })
         })
     })
