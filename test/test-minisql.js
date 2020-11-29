@@ -60,6 +60,18 @@ describe('minisql', function() {
                 done()
             })
         })
+        it('connect calls its callback', function(done) {
+            qmock.stubOnce(net, 'connect', function() { setImmediate(function() { socket.emit('connect') }); return socket })
+            var _socket = packman.connect({}, function() {
+                assert.equal(_socket, socket)
+                done()
+            })
+        })
+        it('connect callback is optional', function(done) {
+            qmock.stubOnce(net, 'connect', function() { setImmediate(function() { socket.emit('connect') }); return socket })
+            packman.connect({})
+            done()
+        })
         it('gathers first socket error', function(done) {
             assert.equal(packman.error, null)
             socket.emit('error', 'mock-error-1')
@@ -87,6 +99,45 @@ describe('minisql', function() {
                 assert.equal(err, 'mock error')
                 assert.ok(!spy.called)
                 done()
+            })
+        })
+        it('getPacket returns waiting packet', function(done) {
+            var myPacket = fromBuf([1, 0, 0, 1, 99])
+            packman._socket.emit('data', myPacket)
+            packman.getPacket(function(err, packet) {
+                assert.equal(packet, myPacket)
+                done()
+            })
+        })
+        it('getPacket waitlists caller to call once no packet is ready', function(done) {
+            var myPacket = fromBuf([2, 0, 0, 1, 99])
+            packman._socket.emit('data', myPacket)
+            var cb = function(err, packet) {
+                assert.deepEqual(packet, [2, 0, 0, 1, 99, 100])
+                done()
+            }
+            packman.getPacket(cb)
+            assert.equal(packman.waitlist.length, 1)
+            assert.equal(packman.waitlist[0], cb)
+            packman._socket.emit('data', fromBuf([100]))
+        })
+        it('getPacket concatenates packet chunks', function(done) {
+            packman._socket.emit('data', fromBuf([3, 0, 0, 1]))
+            packman._socket.emit('data', fromBuf([1, 2, 3, 4, 5]))
+            packman.getPacket(function(err, packet) {
+                assert.deepEqual(packet, [3, 0, 0, 1, 1, 2, 3])
+                done()
+            })
+        })
+        it('getPacket returns waiting packets then waiting error', function(done) {
+            packman.error = new Error('mock error')
+            packman.packets.push('mock packet')
+            packman.getPacket(function(err, packet) {
+                assert.equal(packet, 'mock packet')
+                packman.getPacket(function(err, packet) {
+                    assert.equal(packet[4], 0xff)
+                    done()
+                })
             })
         })
         it('_getResponse verifies consecutive packet sequence ids', function(done) {
