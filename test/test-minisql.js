@@ -12,7 +12,7 @@ var qmock = require('qmock')
 var minisql = require('../')
 
 // from `qibl`
-var allocBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.allocUnsafe : Buffer')
+var allocBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.alloc : Buffer')
 var fromBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.from : Buffer')
 var noop = function(){}
 
@@ -68,9 +68,12 @@ describe('minisql', function() {
             })
         })
         it('connect callback is optional', function(done) {
+            socket = new events.EventEmitter()
+            socket.setNoDelay = noop
             qmock.stubOnce(net, 'connect', function() { setImmediate(function() { socket.emit('connect') }); return socket })
             packman.connect({})
-            done()
+            // wait for the connect event to see the built-in callback invoked
+            setImmediate(done)
         })
         it('gathers first socket error', function(done) {
             assert.equal(packman.error, null)
@@ -140,18 +143,57 @@ describe('minisql', function() {
                 })
             })
         })
+        it('_getResponse combines large packets', function(done) {
+            var packet = allocBuf(0xffffff + 100)
+            var header1 = fromBuf([255, 255, 255, 3])
+            var header2 = fromBuf([100, 0, 0, 4])
+            packman._socket.emit('data', header1)
+            packman._socket.emit('data', packet.slice(0, 0xffffff))
+            packman._socket.emit('data', header2)
+            packman._socket.emit('data', packet.slice(0xffffff))
+            var buf = packman._getResponse()
+            assert.equal(buf[3], 3)
+            assert.equal(buf.length, 4 + 0xffffff + 100)
+            done()
+        })
         it('_getResponse verifies consecutive packet sequence ids', function(done) {
             var packet = allocBuf(0xffffff + 100)
             var header1 = fromBuf([255, 255, 255, 3])
+            var header2 = fromBuf([100, 0, 0, 5])
             packman._socket.emit('data', header1)
             packman._socket.emit('data', packet.slice(0, 0xffffff))
-            var header2 = fromBuf([100, 0, 0, 5])
             packman._socket.emit('data', header2)
             packman._socket.emit('data', packet.slice(0xffffff))
             var buf = packman._getResponse()
             assert.equal(buf[3], 0xff) // error packet
+            // extract info string from the error packet
             var message = buf.toString('utf8', 11)
             assert.ok(/out of order/.test(message))
+            done()
+        })
+        it('sendPacket writes packet with given sequence id', function(done) {
+            var written = []
+            socket.write = function(chunk) { written.push(chunk) }
+            packman.sendPacket([1, 0, 0, 1, 77], 3)
+            assert.deepEqual(written[0], [1, 0, 0, 3, 77])
+            done()
+        })
+        it('sendPacket splits overlong packets and returns next unused sequence id', function(done) {
+            var written = []
+            var message = allocBuf(4 + 0xffffff + 100)
+            message[4] = 111
+            message[4 + 0xffffff] = 222
+            socket.write = function(chunk) { written.push(chunk) }
+            var nextSeqId = packman.sendPacket(message, 99)
+            // hack: we know header is written separately from body, hence 4 writes if split
+            assert.equal(written.length, 4)
+            assert.equal(written[0][3], 99) // our seq id
+            assert.equal(written[1].length, 0xffffff)
+            assert.equal(written[1][0], 111)
+            assert.equal(written[2][3], 100) // next seq id
+            assert.equal(nextSeqId, 101)
+            assert.equal(written[3].length, 100)
+            assert.equal(written[3][0], 222)
             done()
         })
     })
