@@ -4,7 +4,7 @@ minisql
 
 Very small barebones mysql database driver, with deliberately limited features.  The goal is
 a no-frills, low overhed interface to the database command line.  The current version 0.5.0
-is 800 lines of javascript, 1/20th the size of the traditional packages.
+is 800 lines of javascript, 1/10th the size of the traditional packages.
 
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
@@ -16,8 +16,7 @@ Can authenticate to mysql, run queries and return the results.  It supports data
 that are also supported by javascript: strings, numbers, binary blobs and null.  Dates and
 timestamps are passed as strings.
 
-Limitations:
-
+Restrictions:
 - requires Protocol::41 for authentication
 - returns an array of value arrays, not an array of objects
 - longlongs, decimals returned as numbers (beware the loss of precision)
