@@ -1,11 +1,16 @@
+// npm install qibl mysql mysql2 mariadb
+
 'use strict';
 
 if (!/quicktest/.test(require('path').basename(process.argv[1]))) return
 
+var util = require('util')
 var qibl = require('qibl')
 //var mariadb = require('mariadb');
 //var minisql = mariasql()
-var minisql = require('../')     // try mysql, mysql2, or mariasql()
+//var minisql = require('mysql')
+//var minisql = require('mysql2')
+var minisql = require('../')
 
 var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
 function microtime() {
@@ -16,7 +21,7 @@ function microtime() {
 /*
  * TEST: connect, authorize, make a warmup query, make a test query, loop test query.
  */
-var creds = { hostname: 'localhost', 'port': 3306, database: 'test',
+var creds = { host: 'localhost', 'port': 3306, database: 'test',
               user: process.env.USER, password: process.env.DBPASSWORD };
 var t0 = microtime();
 var db = minisql.createConnection(creds);
@@ -25,6 +30,7 @@ db.connect(function(err) {
 console.log("AR: auth time (%d ms)", t1 - t0);
     if (err) throw err;
 
+    var sql = 'SELECT * FROM _test'
     var t1, t2, sql;
     runSteps([
         function(next) {
@@ -45,7 +51,6 @@ console.log("AR: auth time (%d ms)", t1 - t0);
             next);
         },
         function(next) {
-            sql = 'SELECT * FROM _test'
             t1 = microtime();
             db.query(sql, next);
         },
@@ -60,7 +65,19 @@ console.log("AR: got %d rows with '%s' in %d (%d ms)", rows.length, sql, t2 - t1
             selectSeries(db, sql, 10000, next)
         },
         function(next) {
+            selectParallel(db, sql, 10000, next);
+        },
+        function(next) {
             selectSeries(db, sql, 10, next)
+        },
+        function(next) {
+            selectParallel(db, sql, 10, next)
+        },
+        function(next) {
+            selectSeries(db, sql, 1, next)
+        },
+        function(next) {
+            selectParallel(db, sql, 1, next)
         },
         function(next) {
             db.end();
@@ -91,11 +108,18 @@ function selectParallel(db, sql, limit, callback) {
 // FIXME: not supported, errors out
     var ndone = 0;
     var t2 = microtime();
-    var results = [];
-    for (var i=0; i<limit; i++) db.query(sql, function(err, rows) {
-        results.push(rows);
-        if (++ndone >= limit) return callback();
-    })
+    for (var i=0; i<limit; i++) (function(i) {
+        var _sql = sql.replace('*', '*, ' + i);
+        db.query(_sql, function(err, rows) {
+            if ((Array.isArray(rows[0]) && rows[0][rows[0].length - 1] !== i) && (rows[i] !== i)) {
+                throw new Error(util.format('wrong value returned, got %d not %s', i, util.format(rows[0])))
+            }
+            if (++ndone < limit) return;
+            var t3 = microtime();
+console.log("\nAR: parallel %d queries of '%s' in total %d ms: %d avg", limit, _sql, t3 - t2, (t3 - t2) / limit);
+            callback();
+        })
+    })(i);
 }
 
 // iterateSteps adapted from miniq, originally from qrepeat and aflow
