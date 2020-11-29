@@ -1,7 +1,9 @@
 'use strict';
 
 var qibl = require('qibl')
-var sql = require('./')
+//var mariadb = require('mariadb');
+//var minisql = mariasql()
+var minisql = require('./')     // try mysql, mysql2, or mariasql()
 
 var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
 function microtime() {
@@ -12,47 +14,100 @@ function microtime() {
 /*
  * TEST: connect, authorize, make a warmup query, make a test query, loop test query.
  */
-var db = new Db();
+var creds = { hostname: 'localhost', 'port': 3306, database: 'test',
+              user: process.env.USER, password: process.env.DBPASSWORD };
 var t0 = microtime();
-db.connect({ hostname: 'localhost', 'port': 3306, user: 'andras', password: '', database: 'test' }, function(err) {
+var db = minisql.createConnection(creds);
+db.connect(function(err) {
     var t1 = microtime();
 console.log("AR: auth time (%d ms)", t1 - t0);
     if (err) throw err;
 
-    // var sql = 'SELECT 1, "foo", NOW(), NOW()';
-    var sql = 'SELECT * FROM queue';
-    // 0.29 ms after 'SELECT 1', vs 0.45 mariadb, 0.50 mysql, 0.67 mysql2
-    //var sql = 'SELECT * FROM information_schema.collations LIMIT 100;'
-    // 1.16ms, vs 1.136 mariadb
-    //var sql = 'SELECT * from test;'
-
-console.log("AR: writing query (%s)", qibl.str_truncate(sql, 40));
-    db.query('SELECT 1', function() {
-        t1 = microtime();
-        db.query(sql, function(err, rows) {
-            var t2 = microtime();
-            var info = db.queryInfo()
-console.log("AR: got the rows in %d (%d ms)", t2 - t1, info.duration_ms);
-//console.log("AR: got the rows in %d (%d ms)", t2 - t1, info.duration_ms, rows);
-
-            var durations = new Array();
+    var t1, t2, sql;
+    runSteps([
+        function(next) {
+            db.query('select 1', next);
+        },
+        function(next) {
+            db.query(
+                'CREATE TEMPORARY TABLE _test' +
+                '  (id INT, type VARCHAR(255), job VARCHAR(255), lock_tm DATETIME, locked_by VARCHAR(255))' +
+                '  ENGINE=Memory CHARSET=utf8',
+            next);
+        },
+        function(next) {
+            db.query(
+                'INSERT INTO _test VALUES' +
+                '  (1, "jobtype-12345678", "jobdata-12345", NOW(), null),' +
+                '  (2, "jobtype-2345", "jobdata-2345678", 0, null)',
+            next);
+        },
+        function(next) {
+            sql = 'SELECT * FROM _test'
+            t1 = microtime();
+            db.query(sql, next);
+        },
+        function(next, rows) {
             t2 = microtime();
+            var info = db.queryInfo && db.queryInfo() || { duration_ms: 'NA' }
+            delete rows.meta;
+console.log("AR: got %d rows in %d (%d ms)", rows.length, t2 - t1, info.duration_ms, rows);
+            next();
+        },
+        function(next) {
+            var limit = 10000;
             var ncalls = 0;
+            t2 = microtime();
             (function _loop(cb) {
-                if (ncalls++ > 10) return cb()
+                if (ncalls++ >= limit) return cb()
+                var t1 = microtime();
                 db.query(sql, function(err, rows) {
-                    if (err) throw err
-                    durations.push(rows.duration_ms)
-                    _loop(cb);
+                    err ? cb(err) : _loop(cb)
                 })
             })(function() {
                 var t3 = microtime()
-// console.log("AR: 10 queries of '%s' in total %d ms: %s", sql, t3 - t2, durations.join(', '));
-                db.quit(function(err, buf) {
-                    // COM_QUIT does not respond, we never call to here
-console.log("AR: did quit", err, buf);
-                })
+console.log("AR: %d queries of '%s' in total %d ms: %d avg", limit, sql, t3 - t2, (t3 - t2) / limit);
+                next();
             })
-        })
+        },
+        function(next) {
+            db.end();
+            next();
+        },
+    ], function(err) {
+        if (err) throw err;
+        console.log("AR: Done.");
     })
 })
+
+// iterateSteps adapted from miniq, originally from qrepeat and aflow
+function runSteps(steps, callback) {
+    var ix = 0;
+    (function _loop(err, a1, a2) {
+        if (err || ix >= steps.length) return callback(err, a1, a2);
+        steps[ix++](_loop, a1, a2);
+    })()
+}
+
+// adapt mariadb to callbacks to run the benchmark
+function mariasql() { try {
+    return {
+        createConnection: function(creds) {
+            var db = {
+                _creds: creds,
+                _db: null,
+                connect: function(cb) {
+                    mariadb.createConnection(this._creds)
+                      .then(function(_db) { db._db = _db; _db.connect().then(function(conn) { cb() }) });
+                },
+                query: function(sql, cb) {
+                    db._db.query(sql).then(function(ret, meta) { cb(null, ret) });
+                },
+                end: function(cb) {
+                    db._db.end().then(cb);
+                },
+            };
+            return db;
+        }
+    }
+} catch (e) { } }
