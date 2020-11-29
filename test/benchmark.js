@@ -1,4 +1,4 @@
-// npm install qtimeit minisql [mysql mysql2 mariadb]
+// npm install qtimeit mysqule [mysql mysql2 mariadb]
 
 'use strict';
 
@@ -6,13 +6,13 @@ if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
 
 var timeit = require('qtimeit');
 
-var minisql, mysql, mysql2, mariadb;
-var dbMinisql, dbMysql, dbMysql2, dbMariadb;
+var mysqule, mysql, mysql2, mariadb;
+var dbMysqule, dbMysql, dbMysql2, dbMariadb;
 
 try { mysql = require('mysql') } catch (e) {}
 try { mysql2 = require('mysql2') } catch (e) {}
 try { mariadb = require('mariadb') } catch (e) {}     // mariadb crashes under node-v15
-minisql = require('../');
+mysqule = require('../');
 
 var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database: 'test', port: 3306 };
 
@@ -21,9 +21,9 @@ var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
 runSteps([
     function(next) {
-        if (!minisql) return next();
-        console.log("minisql %s", require('../package.json').version);
-        dbMinisql = new minisql.Db().connect(creds, next);
+        if (!mysqule) return next();
+        console.log("mysqule %s", require('../package.json').version);
+        dbMysqule = new mysqule.Db().connect(creds, next);
     },
     function(next) {
         if (!mysql) return next();
@@ -68,7 +68,7 @@ runSteps([
         dbMysql && dbMysql.end();
         dbMysql2 && dbMysql2.end();
         dbMariadb && dbMariadb.end();
-        dbMinisql && dbMinisql.end(function(err){ console.log("AR: minisql end", err) });
+        dbMysqule && dbMysqule.end(function(err){ console.log("AR: mysqule end", err) });
         next();
     },
 ],
@@ -86,11 +86,11 @@ function runQuery(sql, callback) {
     timeit.bench.timeGoal = .45;
     var bench = {};
     if (mysql) bench['mysql'] = function(cb) { dbMysql.query(sql, cb) };
-    if (minisql) bench['minisql'] = function(cb) { dbMinisql.query(sql, cb) };
-    if (minisql && dbMinisql._select) bench['minisql_select'] = function(cb) { dbMinisql._select(sql, cb) };
+    if (mysqule) bench['mysqule'] = function(cb) { dbMysqule.query(sql, cb) };
+    if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
     if (mysql2) bench['mysql2'] = function(cb) { dbMysql2.query(sql, cb) };
     if (mariadb) bench['mariadb'] = function(cb) { dbMariadb.query(sql).then(cb) };
-    if (minisql) bench['minisql_2'] = function(cb) { dbMinisql.query(sql, cb) };
+    if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
 
     repeatFor(loopCount, function(done) { timeit.bench(bench, done) }, callback);
 }
