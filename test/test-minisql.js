@@ -11,6 +11,8 @@ var net = require('net')
 var qmock = require('qmock')
 var minisql = require('../')
 
+var setImmediate = global.setImmediate || process.nextTick
+
 // from `qibl`
 var allocBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.alloc : Buffer')
 var fromBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.from : Buffer')
