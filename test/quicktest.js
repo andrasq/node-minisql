@@ -53,23 +53,14 @@ console.log("AR: auth time (%d ms)", t1 - t0);
             t2 = microtime();
             var info = db.queryInfo && db.queryInfo() || { duration_ms: 'NA' }
             delete rows.meta;
-console.log("AR: got %d rows in %d (%d ms)", rows.length, t2 - t1, info.duration_ms, rows);
+console.log("AR: got %d rows with '%s' in %d (%d ms)", rows.length, sql, t2 - t1, info.duration_ms, rows);
             next();
         },
         function(next) {
-            var limit = 10000;
-            var ncalls = 0;
-            t2 = microtime();
-            (function _loop(cb) {
-                if (ncalls++ >= limit) return cb()
-                db.query(sql, function(err, rows) {
-                    err ? cb(err) : _loop(cb)
-                })
-            })(function() {
-                var t3 = microtime()
-console.log("AR: %d queries of '%s' in total %d ms: %d avg", limit, sql, t3 - t2, (t3 - t2) / limit);
-                next();
-            })
+            selectSeries(db, sql, 10000, next)
+        },
+        function(next) {
+            selectSeries(db, sql, 10, next)
         },
         function(next) {
             db.end();
@@ -80,6 +71,32 @@ console.log("AR: %d queries of '%s' in total %d ms: %d avg", limit, sql, t3 - t2
         console.log("AR: Done.");
     })
 })
+
+function selectSeries(db, sql, limit, callback) {
+    var ndone = 0;
+    var t2 = microtime();
+    (function _loop(cb) {
+        if (ndone++ >= limit) return cb()
+        db.query(sql, function(err, rows) {
+            err ? cb(err) : _loop(cb);
+        })
+    })(function() {
+        var t3 = microtime();
+console.log("AR: in-series %d queries of '%s' in total %d ms: %d avg", limit, sql, t3 - t2, (t3 - t2) / limit);
+        callback();
+    })
+}
+
+function selectParallel(db, sql, limit, callback) {
+// FIXME: not supported, errors out
+    var ndone = 0;
+    var t2 = microtime();
+    var results = [];
+    for (var i=0; i<limit; i++) db.query(sql, function(err, rows) {
+        results.push(rows);
+        if (++ndone >= limit) return callback();
+    })
+}
 
 // iterateSteps adapted from miniq, originally from qrepeat and aflow
 function runSteps(steps, callback) {
