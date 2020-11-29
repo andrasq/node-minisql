@@ -1,11 +1,11 @@
 'use strict';
 
-if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
+if (!/quicktest/.test(require('path').basename(process.argv[1]))) return
 
 var qibl = require('qibl')
 //var mariadb = require('mariadb');
 //var minisql = mariasql()
-var minisql = require('./')     // try mysql, mysql2, or mariasql()
+var minisql = require('../')     // try mysql, mysql2, or mariasql()
 
 var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
 function microtime() {
