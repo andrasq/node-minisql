@@ -78,7 +78,7 @@ function(err) {
 
 
 function runQuery(sql, callback) {
-    console.log("-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
+    console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
     var loopCount = 2;
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
