@@ -89,6 +89,20 @@ describe('minisql', function() {
                 done()
             })
         })
+        it('_getResponse verifies consecutive packet sequence ids', function(done) {
+            var packet = allocBuf(0xffffff + 100)
+            var header1 = fromBuf([255, 255, 255, 3])
+            packman._socket.emit('data', header1)
+            packman._socket.emit('data', packet.slice(0, 0xffffff))
+            var header2 = fromBuf([100, 0, 0, 5])
+            packman._socket.emit('data', header2)
+            packman._socket.emit('data', packet.slice(0xffffff))
+            var buf = packman._getResponse()
+            assert.equal(buf[3], 0xff) // error packet
+            var message = buf.toString('utf8', 11)
+            assert.ok(/out of order/.test(message))
+            done()
+        })
     })
 
     describe('_select', function() {
