@@ -69,7 +69,7 @@ with one parameter replacing each `?` in the query.  Numbers, blobs and arrays a
 everything else is converted to string.
 
 To obtain information about the query, including the column names, use `db.queryInfo()`.  It
-returns timing `info.duration_ms`, and the column names with eg column 0 in `info.columnNames`.
+returns timing `info.duration_ms`, and the column names in `info.columnNames`.
 
     db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
         // => up to 10 rows, each row an array of values
