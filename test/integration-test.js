@@ -69,12 +69,12 @@ describe('integration tests', function() {
             })
         })
         it('connects to a named database', function(done) {
-            var localCreds = { user: creds.user, password: creds.password, database: 'test' }
+            var localCreds = { user: creds.user, password: creds.password, database: 'information_schema' }
             db.connect(localCreds, function(err) {
                 assert.ifError(err)
                 db.query('SHOW TABLES', function(err, rows) {
                     assert.ifError(err)
-                    assert.ok(rows.length > 1)
+                    assert.ok(rows.length > 10)
                     done()
                 })
             })
