@@ -10,7 +10,7 @@ var minisql = require('../')
 var Db = minisql.Db
 
 var creds = { host: 'localhost', port: 3306, database: 'test',
-              user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
+              user: process.env.MYSQL_USER || process.env.USER, password: process.env.MYSQL_PASSWORD }
 
 var setImmediate = global.setImmediate || process.nextTick
 var fromBuf = Buffer.from ? Buffer.from : Buffer
@@ -34,12 +34,13 @@ describe('integration tests', function() {
     var db;
 
     beforeEach(function(done) {
-        db = minisql.createConnection(creds)
-        db.connect(function(err) {
-            if (err) return done(err)
-            // TODO: allow for an auto-run configScript to init the system vars
-            db.query('set global max_allowed_packet = 1000000000;', done)
-        })
+        db = minisql.createConnection({ user: creds.user, password: creds.password })
+        runSteps([
+            function(next) { db.connect(next) },
+            function(next) { db.query('set global max_allowed_packet = 1000000000;', next) },
+            function(next) { db.query('create database if not exists test;', next) },
+            function(next) { db.query('use test;', next) },
+        ], done)
     })
 
     afterEach(function(done) {
@@ -68,8 +69,8 @@ describe('integration tests', function() {
             })
         })
         it('connects to a named database', function(done) {
-            var creds = { user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD, database: 'test' }
-            db.connect(creds, function(err) {
+            var localCreds = { user: creds.user, password: creds.password, database: 'test' }
+            db.connect(localCreds, function(err) {
                 assert.ifError(err)
                 db.query('SHOW TABLES', function(err, rows) {
                     assert.ifError(err)
@@ -79,8 +80,8 @@ describe('integration tests', function() {
             })
         })
         it('connects without a database', function(done) {
-            var creds = { user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
-            db.connect(creds, function(err) {
+            var localCreds = { user: creds.user, password: creds.password }
+            db.connect(localCreds, function(err) {
                 assert.ifError(err)
                 db.query('SHOW TABLES', function(err, rows) {
                     assert.ok(err)
@@ -90,8 +91,8 @@ describe('integration tests', function() {
             })
         })
         it('connects with createConnection', function(done) {
-            var creds = { user: process.env.DBUSER || process.env.USER, password: process.env.DBPASSWORD }
-            minisql.createConnection(creds).connect(function(err) {
+            var localCreds = { user: creds.user, password: creds.password, database: 'test' }
+            minisql.createConnection(localCreds).connect(function(err) {
                 assert.ifError()
                 db.query('SELECT 1', function(err, rows) {
                     assert.ifError(err)
