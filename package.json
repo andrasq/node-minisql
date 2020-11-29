@@ -1,10 +1,9 @@
 {
-  "name": "minisql",
+  "name": "mysqule",
   "version": "0.5.3",
-  "description": "small, quick mysql database connector",
+  "description": "small, quick mysql database bindings",
   "license": "Apache-2.0",
   "main": "lib/minisql",
-  "files": ["lib", "README.md"],
 
   "author": "andrasq",
   "readme": "see README.md in the repo",

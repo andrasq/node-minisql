@@ -1,4 +1,4 @@
-minisql
+mysqule
 =======
 [![Build Status](https://travis-ci.org/andrasq/node-minisql.svg?branch=master)](https://travis-ci.org/andrasq/node-minisql)
 
@@ -26,12 +26,12 @@ Restrictions:
 Example
 -------
 
-    minisql = require('minisql')
+    mysqule = require('mysqule')
 
     creds = { user: process.env.DBUSER, password: process.env.DBPASSWORD,
               host: 'localhost', port: 3306, database: 'test' }
 
-    db = minisql.createConnection(creds).connect(function(err) {
+    db = mysqule.createConnection(creds).connect(function(err) {
         db.query("SELECT 1, 'two', NOW();", function(err, rows) {
             // rows => [ [ 1, 'two', '2020-11-23 00:56:15' ], ]
         })
@@ -41,7 +41,7 @@ Example
 Api
 ---
 
-### db = minisql.createConnection( options )
+### db = mysqule.createConnection( options )
 
 Create a new database connection manager.  This is a fast low-cost step, it just sets up
 internal structures, must still `connect` to the database.  Equivalent to `new Db(options)`.
