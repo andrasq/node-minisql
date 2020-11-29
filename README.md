@@ -84,7 +84,7 @@ Todo
 ----
 
 - connection pools (db sets)
-- maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
+- maybe: look for creds in `process.env.MYSQL_USER` and `MYSQL_PASSWORD`
 - "raw" mode, return response packets in buffer(s) without decoding (for trans-shipment)
 - see whether can avoid buffer copies, instead return array of chunks responses
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)

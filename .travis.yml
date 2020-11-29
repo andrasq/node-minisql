@@ -4,6 +4,10 @@ node_js:
   - 5
   - 10
   - 15
+services:
+  - mysql
+env:
+  - MYSQL_USER=root
 before_install:
   - npm install -g qnit
 after_success:
