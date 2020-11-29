@@ -48,8 +48,8 @@ describe('minisql', function() {
             assert.equal(packeteer.bufs.length, 1)
             packeteer.write(fromBuf([7, 8]))
             assert.equal(packeteer.bufs.length, 2)
-            assert.deepEqual(packeteer.bufs[0], [1, 0, 0, 4, 5, 6])
-            assert.deepEqual(packeteer.bufs[1], [7, 8])
+            assert.deepEqual(packeteer.bufs[0], fromBuf([1, 0, 0, 4, 5, 6]))
+            assert.deepEqual(packeteer.bufs[1], fromBuf([7, 8]))
             done()
         })
     })
@@ -116,7 +116,7 @@ describe('minisql', function() {
             var myPacket = fromBuf([2, 0, 0, 1, 99])
             packman._socket.emit('data', myPacket)
             var cb = function(err, packet) {
-                assert.deepEqual(packet, [2, 0, 0, 1, 99, 100])
+                assert.deepEqual(packet, fromBuf([2, 0, 0, 1, 99, 100]))
                 done()
             }
             packman.getPacket(cb)
@@ -128,7 +128,7 @@ describe('minisql', function() {
             packman._socket.emit('data', fromBuf([3, 0, 0, 1]))
             packman._socket.emit('data', fromBuf([1, 2, 3, 4, 5]))
             packman.getPacket(function(err, packet) {
-                assert.deepEqual(packet, [3, 0, 0, 1, 1, 2, 3])
+                assert.deepEqual(packet, fromBuf([3, 0, 0, 1, 1, 2, 3]))
                 done()
             })
         })
@@ -175,7 +175,7 @@ describe('minisql', function() {
             var written = []
             socket.write = function(chunk) { written.push(chunk) }
             packman.sendPacket([1, 0, 0, 1, 77], 3)
-            assert.deepEqual(written[0], [1, 0, 0, 3, 77])
+            assert.deepEqual(written[0], fromBuf([1, 0, 0, 3, 77]))
             done()
         })
         it('sendPacket splits overlong packets and returns next unused sequence id', function(done) {
