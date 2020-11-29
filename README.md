@@ -21,6 +21,7 @@ Restrictions:
 - returns an array of value arrays, not an array of objects
 - longlongs, decimals returned as numbers (beware the loss of precision)
 - dates, timestamps, enums returned as strings
+- assumes max_allowed_packet is 16MB
 
 
 Example
@@ -55,10 +56,10 @@ Options:
 - setup - TODO: array of sql commands to run before using the connection
 - teardown - TODO: array of sql commands to run before closing the connection
 
-### db.connect( onConnect(err) )
+### db = db.connect( onConnect(err) )
 
 Connect to the database, authenticate with the credentials supplied to createConnection, and
-configure the connection.
+configure the connection.  Returns the same db object it was called on, for chaining.
 
 ### db.query( sql, [params,] callback(err, result) )
 
@@ -68,7 +69,7 @@ with one parameter replacing each `?` in the query.  Numbers, blobs and arrays a
 everything else is converted to string.
 
 To obtain information about the query, including the column names, use `db.queryInfo()`.  It
-returns timing `info.duration_ms`, and the column names with eg column 0 in `info.columns[0].name`.
+returns timing `info.duration_ms`, and the column names with eg column 0 in `info.columnNames`.
 
     db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
         // => up to 10 rows, each row an array of values
@@ -85,11 +86,14 @@ Todo
 - connection pools (db sets)
 - maybe: look for creds in `process.env.DBUSER` and `DBPASSWORD`
 - "raw" mode, return response packets in buffer(s) without decoding (for trans-shipment)
+- see whether can avoid buffer copies, instead return array of chunks responses
+- improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 
 
 Changelog
 ---------
 
+- 0.5.3 - experiment with _select, rewritten quicktest, first published version
 - 0.5.0 - `createConnection`
 - 0.4.0 - query param interpolation
 - 0.3.0 - much faster queries
