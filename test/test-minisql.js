@@ -30,17 +30,17 @@ describe('minisql', function() {
         done()
     })
 
-    describe('select', function() {
+    describe('_select', function() {
         it('calls query', function(done) {
             var spy
 
             spy = qmock.stubOnce(db, 'query')
-            db.select('mock call 1', function(){})
+            db._select('mock call 1', function(){})
             assert.ok(spy.called)
             assert.equal(spy.args[0][0], 'mock call 1')
 
             spy = qmock.stubOnce(db, 'query')
-            db.select('mock call ?', [2], function(){})
+            db._select('mock call ?', [2], function(){})
             assert.ok(spy.called)
             assert.equal(spy.args[0][0], 'mock call ?')
 

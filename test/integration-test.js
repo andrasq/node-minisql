@@ -330,7 +330,7 @@ describe('integration tests', function() {
     })
     describe('select', function() {
         it('returns hashes', function(done) {
-            db.select('SELECT 1 AS a, "two" as be, 3.5 as cee', function(err, rows) {
+            db._select('SELECT 1 AS a, "two" as be, 3.5 as cee', function(err, rows) {
                 assert.ifError(err)
                 assert.deepEqual(rows[0], { a: 1, be: 'two', cee: 3.5 })
                 done()

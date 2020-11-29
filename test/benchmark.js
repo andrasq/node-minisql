@@ -87,7 +87,7 @@ function runQuery(sql, callback) {
     var bench = {};
     if (mysql) bench['mysql'] = function(cb) { dbMysql.query(sql, cb) };
     if (minisql) bench['minisql'] = function(cb) { dbMinisql.query(sql, cb) };
-    if (minisql && dbMinisql.select) bench['minisql_select'] = function(cb) { dbMinisql.select(sql, cb) };
+    if (minisql && dbMinisql._select) bench['minisql_select'] = function(cb) { dbMinisql._select(sql, cb) };
     if (mysql2) bench['mysql2'] = function(cb) { dbMysql2.query(sql, cb) };
     if (mariadb) bench['mariadb'] = function(cb) { dbMariadb.query(sql).then(cb) };
     if (minisql) bench['minisql_2'] = function(cb) { dbMinisql.query(sql, cb) };
