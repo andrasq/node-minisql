@@ -1,5 +1,7 @@
 'use strict';
 
+if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
+
 var qibl = require('qibl')
 //var mariadb = require('mariadb');
 //var minisql = mariasql()
@@ -60,7 +62,6 @@ console.log("AR: got %d rows in %d (%d ms)", rows.length, t2 - t1, info.duration
             t2 = microtime();
             (function _loop(cb) {
                 if (ncalls++ >= limit) return cb()
-                var t1 = microtime();
                 db.query(sql, function(err, rows) {
                     err ? cb(err) : _loop(cb)
                 })
