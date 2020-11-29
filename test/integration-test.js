@@ -3,7 +3,7 @@
  * Licensed under the Apache License, Version 2.0
  */
 
-// run by hand, not part of the test-* suite
+'use strict'
 
 var assert = require('assert')
 var minisql = require('../')
@@ -285,7 +285,7 @@ describe('integration tests', function() {
         it('can send and receive large commands spanning 2 packets', function(done) {
             var str1k = new Array(1001).join('x').slice()
             var str20m = new Array(17001).join(str1k).slice()
-            sql = 'SELECT "' + str20m + '" AS bulk';            // 10 bytes for the SELECT query + 17m
+            var sql = 'SELECT "' + str20m + '" AS bulk';        // 10 bytes for the SELECT query + 17m
             var t1 = Date.now()
             db.query(sql, function(err, rows) {
                 var t2 = Date.now()
@@ -302,7 +302,7 @@ describe('integration tests', function() {
         it('can send and receive commands spanning 3 packets', function(done) {
             var str1k = new Array(1001).join('x').slice()
             var str40m = new Array(35001).join(str1k).slice()
-            sql = 'SELECT "' + str40m + '"';
+            var sql = 'SELECT "' + str40m + '"';
             db.query(sql, function(err, rows) {
                 var info = db.queryInfo()
                 console.log("AR: 34m in %d ms", info && info.duration_ms);

@@ -18,7 +18,6 @@
 
   "scripts": {
     "test": "qnit test",
-    "WARNING": "integration tests can only be run locally, do not include in coverage",
     "coverage": "nyc -r text -r lcov qnit -t 10000 test",
     "clean": "rm -rf coverage .nyc_output"
   }
