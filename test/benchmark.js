@@ -49,8 +49,13 @@ runSteps([
     },
     function(next) {
         // var sql = 'SELECT 1';
-        var sql = 'SELECT 1, "two", 3.5';
+        var sql = 'SELECT 1, "series", 3.5';
         runQuery(sql, next);
+    },
+    function(next) {
+        // var sql = 'SELECT 1';
+        var sql = 'SELECT 1, "parallel", 3.5';
+        runQueryParallel(sql, 10, next);
     },
     function(next) {
         var sql = 'SELECT COUNT(*) FROM information_schema.collations';
@@ -77,21 +82,47 @@ function(err) {
 });
 
 
-function runQuery(sql, callback) {
+function runQuery(sql, callback) { runQueryParallel(sql, 1, callback ) }
+function runQueryParallel(sql, count, callback) {
     console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
     var loopCount = 2;
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
     timeit.bench.bargraphScale = 10;
     timeit.bench.timeGoal = .45;
+    timeit.bench.opsPerTest = (count <= 1) ? 1 : count;
     var bench = {};
-    if (mysql) bench['mysql'] = function(cb) { dbMysql.query(sql, cb) };
-    if (mysqule) bench['mysqule'] = function(cb) { dbMysqule.query(sql, cb) };
-    if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
-    if (mysql2) bench['mysql2'] = function(cb) { dbMysql2.query(sql, cb) };
-    if (mariadb) bench['mariadb'] = function(cb) { dbMariadb.query(sql).then(cb) };
-    if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
-
+    if (count <= 1) {
+        if (mysql) bench['mysql'] = function(cb) { dbMysql.query(sql, cb) };
+        if (mysql) bench['mysql_2'] = function(cb) { dbMysql.query(sql, cb) };
+        if (mysql2) bench['mysql2'] = function(cb) { dbMysql2.query(sql, cb) };
+        if (mysql2) bench['mysql2_2'] = function(cb) { dbMysql2.query(sql, cb) };
+        if (mariadb) bench['mariadb'] = function(cb) { dbMariadb.query(sql).then(cb) };
+        if (mariadb) bench['mariadb_2'] = function(cb) { dbMariadb.query(sql).then(cb) };
+        if (mysqule) bench['mysqule'] = function(cb) { dbMysqule.query(sql, cb) };
+        if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
+        if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
+    } else {
+        function runemPromise(db, method, query, cb) {
+            var ndone = 0;
+            for (var i=0; i<count; i++) { db[method](query).then(onDone) }
+            function onDone(err, rows) { ndone += 1; if (ndone >= count) cb() }
+        }
+        function runem(db, method, query, cb) {
+            var ndone = 0;
+            for (var i=0; i<count; i++) { db[method](query, onDone) }
+            function onDone(err, rows) { ndone += 1; if (ndone >= count) cb() }
+        }
+        if (mysql) bench['mysql'] = function(cb) { runem(dbMysql, 'query', sql, cb) };
+        if (mysql) bench['mysql_2'] = function(cb) { runem(dbMysql, 'query', sql, cb) };
+        if (mysql2) bench['mysql2'] = function(cb) { runem(dbMysql2, 'query', sql, cb) };
+        if (mysql2) bench['mysql2_2'] = function(cb) { runem(dbMysql2, 'query', sql, cb) };
+        if (mariadb) bench['mariadb'] = function(cb) { runemPromise(dbMariadb, 'query', sql, cb) };
+        if (mariadb) bench['mariadb_2'] = function(cb) { runemPromise(dbMariadb, 'query', sql, cb) };
+        if (mysqule) bench['mysqule'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
+        if (mysqule) bench['mysqule_2'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
+        if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { runem(dbMysqule, '_select', sql, cb) };
+    }
     repeatFor(loopCount, function(done) { timeit.bench(bench, done) }, callback);
 }
 
