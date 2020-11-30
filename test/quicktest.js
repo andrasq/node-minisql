@@ -116,7 +116,7 @@ function selectParallel(db, sql, limit, callback) {
             }
             if (++ndone < limit) return;
             var t3 = microtime();
-console.log("\nAR: parallel %d queries of '%s' in total %d ms: %d avg", limit, _sql, t3 - t2, (t3 - t2) / limit);
+console.log("AR: parallel %d queries of '%s' in total %d ms: %d avg", limit, _sql, t3 - t2, (t3 - t2) / limit, "\n");
             callback();
         })
     })(i);

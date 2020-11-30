@@ -2,9 +2,9 @@ mysqule
 =======
 [![Build Status](https://travis-ci.org/andrasq/node-minisql.svg?branch=master)](https://travis-ci.org/andrasq/node-minisql)
 
-Very small barebones mysql database driver, with deliberately limited features.  The goal is
-a no-frills, low overhed interface to the database command line.  The current version 0.5.0
-is 800 lines of javascript, 1/10th the size of the traditional packages.
+Very small barebones mysql database driver.  The goal was a no-frills, low overhed interface to
+the database command line.  The current version 0.5.0 is 800 lines of javascript, 1/10th the
+size of the traditional packages.  Tested to work with nodejs v0.8 through v15.3.
 
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
@@ -32,7 +32,6 @@ Example
 -------
 
     mysqule = require('mysqule')
-
     creds = { user: process.env.DBUSER, password: process.env.DBPASSWORD,
               host: 'localhost', port: 3306, database: 'test' }
 
@@ -41,6 +40,19 @@ Example
             // rows => [ [ 1, 'two', '2020-11-23 00:56:15' ], ]
         })
     })
+
+node-v14.9.0 ./test/benchmark.js:
+
+    qtimeit=0.22.2 node=14.9.0 v8=8.4.371.19-node.13 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
+    arch=x64 mhz=4492[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
+    -------- SELECT 1, "series", 3.5
+    mysql        23,744 ops/sec   1001 >>>>>>>>>>
+    mariadb      45,423 ops/sec   1915 >>>>>>>>>>>>>>>>>>>
+    mysqule      62,307 ops/sec   2627 >>>>>>>>>>>>>>>>>>>>>>>>>>
+    -------- SELECT 1, "parallel", 3.5
+    mysql        30,217 ops/sec   1000 >>>>>>>>>>
+    mariadb     101,914 ops/sec   3374 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqule     115,166 ops/sec   3812 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api
