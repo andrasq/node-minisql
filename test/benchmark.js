@@ -103,12 +103,12 @@ function runQueryParallel(sql, count, callback) {
         if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
         if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
     } else {
-        function runemPromise(db, method, query, cb) {
+        runemPromise = function(db, method, query, cb) {
             var ndone = 0;
             for (var i=0; i<count; i++) { db[method](query).then(onDone) }
             function onDone(err, rows) { ndone += 1; if (ndone >= count) cb() }
         }
-        function runem(db, method, query, cb) {
+        runem = function(db, method, query, cb) {
             var ndone = 0;
             for (var i=0; i<count; i++) { db[method](query, onDone) }
             function onDone(err, rows) { ndone += 1; if (ndone >= count) cb() }
