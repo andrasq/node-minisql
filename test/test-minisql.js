@@ -21,17 +21,22 @@ var noop = function(){}
 var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user', password: 'password' }
 
 describe('minisql', function() {
-    var db, packman, packeteer, socket
+    var db, packman, packeteer, socket, connectStub
     beforeEach(function(done) {
         db = minisql.createConnection(mockCreds)
         packman = db.packman
         packeteer = packman.packeteer
         socket = new events.EventEmitter()
         socket.setNoDelay = noop
-        qmock.stubOnce(net, 'connect', function() {
+        connectStub = qmock.stubOnce(net, 'connect', function() {
             setImmediate(function() { socket.emit('connect') })
             return socket
         })
+        done()
+    })
+
+    afterEach(function(done) {
+        connectStub.restore()
         done()
     })
 

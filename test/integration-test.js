@@ -13,7 +13,7 @@ var creds = { host: 'localhost', port: 3306, database: 'test',
               user: process.env.MYSQL_USER || process.env.USER, password: process.env.MYSQL_PASSWORD }
 
 var setImmediate = global.setImmediate || process.nextTick
-var fromBuf = Buffer.from ? Buffer.from : Buffer
+var fromBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.from : Buffer');
 
 function runSteps(steps, callback) {
     var ix = 0;
