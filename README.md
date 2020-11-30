@@ -8,6 +8,10 @@ is 800 lines of javascript, 1/10th the size of the traditional packages.
 
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
+* low latency
+* pipelined queries
+* parameter interpolation
+
 
 Overview
 --------
@@ -93,6 +97,7 @@ Todo
 Changelog
 ---------
 
+- 0.6.0 - pipeline concurrent queries, not serialize
 - 0.5.3 - experiment with _select, rewritten quicktest, first published version
 - 0.5.0 - `createConnection`
 - 0.4.0 - query param interpolation
