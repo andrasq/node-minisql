@@ -96,14 +96,15 @@ returns timing `info.duration_ms`, and the column names in `info.columnNames`.
 Close the connection.
 
 
-Todo
-----
+Ideas for Future Work
+---------------------
 
-- connection pools (db sets)
+- connection pools (db sets) (possibly dynamic min-max)
 - maybe: look for creds in `process.env.MYSQL_USER` and `MYSQL_PASSWORD`
 - "raw" mode, return response packets in buffer(s) without decoding (for trans-shipment)
-- see whether can avoid buffer copies, instead return array of chunks responses
+- see whether can avoid buffer copies, instead return array of response chunks
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
+- automatic reconnect (on timeout and error)
 
 
 Changelog
