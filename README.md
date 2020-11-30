@@ -97,6 +97,7 @@ Todo
 Changelog
 ---------
 
+- 0.6.1 - fix tests and benchmark
 - 0.6.0 - pipeline concurrent queries, not serialize
 - 0.5.3 - experiment with _select, rewritten quicktest, first published version
 - 0.5.0 - `createConnection`

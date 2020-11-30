@@ -11,7 +11,7 @@ var dbMysqule, dbMysql, dbMysql2, dbMariadb;
 
 try { mysql = require('mysql') } catch (e) {}
 try { mysql2 = require('mysql2') } catch (e) {}
-try { mariadb = require('mariadb') } catch (e) {}     // mariadb crashes under node-v15
+try { mariadb = require('mariadb') } catch (e) {}     // mariadb 2.0.3 crashes under node-v15
 mysqule = require('../');
 
 var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database: 'test', port: 3306 };
@@ -89,7 +89,7 @@ function runQueryParallel(sql, count, callback) {
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
     timeit.bench.bargraphScale = 10;
-    timeit.bench.timeGoal = .45;
+    timeit.bench.timeGoal = .15;
     timeit.bench.opsPerTest = (count <= 1) ? 1 : count;
     var bench = {};
     if (count <= 1) {
@@ -101,7 +101,7 @@ function runQueryParallel(sql, count, callback) {
         if (mariadb) bench['mariadb_2'] = function(cb) { dbMariadb.query(sql).then(cb) };
         if (mysqule) bench['mysqule'] = function(cb) { dbMysqule.query(sql, cb) };
         if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
-        if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
+        // if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
     } else {
         var runemPromise = function(db, method, query, cb) {
             var ndone = 0;
@@ -121,7 +121,7 @@ function runQueryParallel(sql, count, callback) {
         if (mariadb) bench['mariadb_2'] = function(cb) { runemPromise(dbMariadb, 'query', sql, cb) };
         if (mysqule) bench['mysqule'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
         if (mysqule) bench['mysqule_2'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
-        if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { runem(dbMysqule, '_select', sql, cb) };
+        // if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { runem(dbMysqule, '_select', sql, cb) };
     }
     repeatFor(loopCount, function(done) { timeit.bench(bench, done) }, callback);
 }
