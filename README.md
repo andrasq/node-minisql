@@ -46,13 +46,18 @@ node-v14.9.0 ./test/benchmark.js:
     qtimeit=0.22.2 node=14.9.0 v8=8.4.371.19-node.13 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
     arch=x64 mhz=4492[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
     -------- SELECT 1, "series", 3.5
-    mysql        23,744 ops/sec   1001 >>>>>>>>>>
-    mariadb      45,423 ops/sec   1915 >>>>>>>>>>>>>>>>>>>
-    mysqule      62,307 ops/sec   2627 >>>>>>>>>>>>>>>>>>>>>>>>>>
+    qtimeit=0.22.2 node=14.15.1 v8=8.4.371.19-node.17 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
+    arch=x64 mhz=4489[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
+    name          speed           rate
+    mysql        27,721 ops/sec   1000 >>>>>>>>>>
+    mysql2       40,818 ops/sec   1472 >>>>>>>>>>>>>>>
+    mariadb      49,283 ops/sec   1778 >>>>>>>>>>>>>>>>>>
+    mysqule      63,339 ops/sec   2285 >>>>>>>>>>>>>>>>>>>>>>>
     -------- SELECT 1, "parallel", 3.5
-    mysql        30,217 ops/sec   1000 >>>>>>>>>>
-    mariadb     101,914 ops/sec   3374 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqule     115,166 ops/sec   3812 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysql        29,464 ops/sec   1008 >>>>>>>>>>
+    mysql2       41,273 ops/sec   1411 >>>>>>>>>>>>>>
+    mariadb     105,723 ops/sec   3616 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqule     115,648 ops/sec   3955 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api

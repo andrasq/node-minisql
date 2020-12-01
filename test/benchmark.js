@@ -85,7 +85,7 @@ function(err) {
 function runQuery(sql, callback) { runQueryParallel(sql, 1, callback ) }
 function runQueryParallel(sql, count, callback) {
     console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
-    var loopCount = 2;
+    var loopCount = 3;
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
     timeit.bench.bargraphScale = 10;
