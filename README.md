@@ -66,7 +66,7 @@ Api
 ### db = mysqule.createConnection( options )
 
 Create a new database connection manager.  This is a fast low-cost step, it just sets up
-internal structures, must still `connect` to the database.  Equivalent to `new Db(options)`.
+internal structures, must still `connect` to the database.
 
 Options:
 - user - username to authenticate as.  Required; no default.

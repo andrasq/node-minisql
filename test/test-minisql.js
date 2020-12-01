@@ -27,6 +27,7 @@ describe('minisql', function() {
         packman = db.packman
         packeteer = packman.packeteer
         socket = new events.EventEmitter()
+        socket.write = noop
         socket.setNoDelay = noop
         connectStub = qmock.stubOnce(net, 'connect', function() {
             setImmediate(function() { socket.emit('connect') })
@@ -205,21 +206,134 @@ describe('minisql', function() {
         })
     })
 
-    describe('_select', function() {
-        it('calls query', function(done) {
-            var spy
+    describe('Db', function() {
+        describe('connect', function() {
+            it('rejects protocol other than v10', function(done) {
+                var packet = allocBuf(60); fill(packet, 0); packet[3] = 0; packet[4] = 99
+                qmock.stubOnce(db.packman, 'getPacket').yields(null, packet)
+                db.connect(function(err) {
+                    assert.ok(err)
+                    assert.ok(/bad.*protocol.*99/.test(err.message))
+                    done()
+                })
+            })
+            it('rejects other than the initial 0 sequence id', function(done) {
+                var packet = allocBuf(60); fill(packet, 0); packet[3] = 2; packet[4] = 10
+                qmock.stubOnce(db.packman, 'getPacket').yields(null, packet)
+                db.connect(function(err) {
+                    assert.ok(err)
+                    assert.ok(/sequence id 2/.test(err.message))
+                    done()
+                })
+            })
+            it('rejects a non-OK response to handshake', function(done) {
+                qmock.stub(db.packman, 'getPacket')
+                  .onCall(0).yields(null, fromBuf([
+                    1, 0, 0, 0, 10, 0, 4, 4, 4, 4, 48, 48, 48, 48, 48, 48, 48, 48, 0, 255, 255, 33, 2, 2,
+                    0xff, 0xff, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 0, 109, 121, 0]))
+                  .onCall(1).yields(null, fromBuf([1, 0, 0, 2, 255]))
+                db.connect(function(err) {
+                    assert.ok(err)
+                    assert.ok(/not OK/.test(err.message))
+                    done()
+                })
+            })
+        })
 
-            spy = qmock.stubOnce(db, 'query')
-            db._select('mock call 1', function(){})
-            assert.ok(spy.called)
-            assert.equal(spy.args[0][0], 'mock call 1')
+        describe('_getPacketsEof', function() {
+            it.skip('returns received packets until Eof', function() {
+                // WRITEME
+            })
+            it.skip('returns received packets until OK', function() {
+                // WRITEME
+            })
+            it('returns Error packet as err', function(done) {
+                var errPacket = [9, 0, 0, 3, 255, 0, 4, 35, 48, 48, 48, 48, 48, 69, 69, 69]
+                qmock.stub(db.packman, 'getPacket')
+                  .onCall(0).yields(null, fromBuf([1, 0, 0, 1, 7]))
+                  .onCall(1).yields(null, fromBuf([1, 0, 0, 2, 8]))
+                  .onCall(2).yields(null, errPacket)
+                db._getPacketsEof(null, function(err, packets) {
+                    assert.ok(err)
+                    assert.deepEqual(packets, [fromBuf([1, 0, 0, 1, 7]), fromBuf([1, 0, 0, 2, 8])])
+                    assert.equal(err, errPacket)
+                    done()
+                })
+            })
+        })
 
-            spy = qmock.stubOnce(db, 'query')
-            db._select('mock call ?', [2], function(){})
-            assert.ok(spy.called)
-            assert.equal(spy.args[0][0], 'mock call ?')
+        describe('query', function() {
+            it('requires query', function(done) {
+                assert.throws(function() { db.query(noop) }, /query.*required/)
+                done()
+            })
+            it('requires callback', function(done) {
+                assert.throws(function() { db.query('select 1') }, /callback.*required/)
+                done()
+            })
+            it('converts query to a Query packet', function(done) {
+                var spy = qmock.stub(db.packman, 'sendPacket', function(packet) { packet[3] = 0; return 1 })
+                qmock.stub(db, '_readResult')
+                db.query('SELECT 12321', noop)
+                assert.ok(spy.called)
+                assert.deepEqual(spy.args[0][0][3], 0)  // sequence id
+                assert.deepEqual(spy.args[0][0][4], 3)  // COM_QUERY
+                assert.deepEqual(spy.args[0][0].slice(5), fromBuf('SELECT 12321'))
+                done()
+            })
+            it.skip('splits a long query into multiple packets', function(done) {
+                // WRITEME
+            })
+            it('calls _readResult', function(done) {
+                qmock.stub(db.packman, 'sendPacket')
+                var spy = qmock.stub(db, '_readResult')
+                db.query('SELECT 1', noop)
+                assert.ok(spy.called)
+                done()
+            })
+        })
 
-            done()
+        describe('_readResult', function() {
+            it('queues reader if busy reading', function(done) {
+                db._busyQ = true
+                var cb = function() {}
+                assert.equal(db._readerQueue.length, 0) // empty before
+                db._readResult('select something', 1, 1234.5, cb)
+                assert.equal(db._readerQueue.length, 1) // not empty after
+                assert.deepEqual(db._readerQueue[0], ['select something', 1, 1234.5, cb])
+                done()
+            })
+        })
+
+        describe('_select', function() {
+            it('calls query', function(done) {
+                var spy
+
+                spy = qmock.stubOnce(db, 'query')
+                db._select('mock call 1', function(){})
+                assert.ok(spy.called)
+                assert.equal(spy.args[0][0], 'mock call 1')
+
+                spy = qmock.stubOnce(db, 'query')
+                db._select('mock call ?', [2], function(){})
+                assert.ok(spy.called)
+                assert.equal(spy.args[0][0], 'mock call ?')
+
+                done()
+            })
+            it('returns query errors', function(done) {
+                var spy = qmock.stub(db, 'query').yields(new Error('mock error'))
+                db._select('select 1', function(err, rows) {
+                    assert.ok(err)
+                    assert.ok(spy.called)
+                    assert.equal(err.message, 'mock error')
+                    done()
+                })
+            })
         })
     })
 })
+
+function fill(a, v) {
+    for (var i=0; i<a.length; i++) a[i] = v
+}
