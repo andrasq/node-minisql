@@ -4,6 +4,9 @@ var assert = require('assert')
 var utils = require('../lib/utils')
 
 describe('utils', function() {
+    describe('Bytes', function() {
+    })
+
     describe('repeatFor', function() {
         var count;
         var counter = function(cb) { count += 1; cb() }
