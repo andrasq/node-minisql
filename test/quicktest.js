@@ -13,18 +13,15 @@ var qibl = require('qibl')
 var minisql = require('../')
 var utils = require('../lib/utils')
 
-var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
-function microtime() { var ms = hrtime(); return ms[0] * 1000 + ms[1] / 1e6 }
-
 /*
  * TEST: connect, authorize, make a warmup query, make a test query, loop test query.
  */
 var creds = { host: 'localhost', 'port': 3306, database: 'test',
               user: process.env.USER, password: process.env.DBPASSWORD };
-var t0 = microtime();
+var t0 = utils.microtime();
 var db = minisql.createConnection(creds);
 db.connect(function(err) {
-    var t1 = microtime();
+    var t1 = utils.microtime();
 console.log("AR: auth time (%d ms)", t1 - t0);
     if (err) throw err;
 
@@ -49,11 +46,11 @@ console.log("AR: auth time (%d ms)", t1 - t0);
             next);
         },
         function(next) {
-            t1 = microtime();
+            t1 = utils.microtime();
             db.query(sql, next);
         },
         function(next, rows) {
-            t2 = microtime();
+            t2 = utils.microtime();
             var info = db.queryInfo && db.queryInfo() || { duration_ms: 'NA' }
             delete rows.meta;
 console.log("AR: got %d rows with '%s' in %d (%d ms)", rows.length, sql, t2 - t1, info.duration_ms, rows);
@@ -89,14 +86,14 @@ console.log("AR: got %d rows with '%s' in %d (%d ms)", rows.length, sql, t2 - t1
 
 function selectSeries(db, sql, limit, callback) {
     var ndone = 0;
-    var t2 = microtime();
+    var t2 = utils.microtime();
     (function _loop(cb) {
         if (ndone++ >= limit) return cb()
         db.query(sql, function(err, rows) {
             err ? cb(err) : _loop(cb);
         })
     })(function() {
-        var t3 = microtime();
+        var t3 = utils.microtime();
 console.log("AR: in-series %d queries of '%s' in total %d ms: %d avg", limit, sql, t3 - t2, (t3 - t2) / limit);
         callback();
     })
@@ -105,7 +102,7 @@ console.log("AR: in-series %d queries of '%s' in total %d ms: %d avg", limit, sq
 function selectParallel(db, sql, limit, callback) {
 // FIXME: not supported, errors out
     var ndone = 0;
-    var t2 = microtime();
+    var t2 = utils.microtime();
     for (var i=0; i<limit; i++) (function(i) {
         var _sql = sql.replace('*', '*, ' + i);
         db.query(_sql, function(err, rows) {
@@ -113,7 +110,7 @@ function selectParallel(db, sql, limit, callback) {
                 throw new Error(util.format('wrong value returned, got %d not %s', i, util.format(rows[0])))
             }
             if (++ndone < limit) return;
-            var t3 = microtime();
+            var t3 = utils.microtime();
 console.log("AR: parallel %d queries of '%s' in total %d ms: %d avg", limit, _sql, t3 - t2, (t3 - t2) / limit, "\n");
             callback();
         })
