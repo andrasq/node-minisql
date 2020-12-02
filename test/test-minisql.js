@@ -20,6 +20,14 @@ var noop = function(){}
 
 var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user', password: 'password' }
 
+function repeatFor(n, proc, callback) {
+    var ncalls = 0;
+    (function _loop(err) {
+        if (err || n-- <= 0) return callback(err);
+        (ncalls++ > 100) ? process.nextTick(_loop) : proc(_loop);
+    })()
+}
+
 describe('minisql', function() {
     var db, packman, packeteer, socket, connectStub
     beforeEach(function(done) {
@@ -290,6 +298,18 @@ describe('minisql', function() {
                 db.query('SELECT 1', noop)
                 assert.ok(spy.called)
                 done()
+            })
+            it('builds query fast', function(done) {
+                packman.sendPacket = function() { return 1 }    // fast stub
+                db._readResult = function(query, seqId, startMs, callback) { callback() }
+
+                var args = [1, 2, ['two', 3]]
+                console.time('send interpolate query')
+                repeatFor(1000000, function(next) { db.query('SELECT ?, ?, ? FROM _mock', args, next) }, function() {
+                    console.timeEnd('send interpolate query')
+                    done()
+                    // 1 million query interpolations in 50ms
+                })
             })
         })
 

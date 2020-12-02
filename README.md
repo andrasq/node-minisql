@@ -110,6 +110,7 @@ Ideas for Future Work
 - see whether can avoid buffer copies, instead return array of response chunks
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 - automatic reconnect (on timeout and error)
+- postgresql back-end plugin
 
 
 Changelog
