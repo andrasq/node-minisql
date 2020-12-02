@@ -21,11 +21,15 @@ describe('integration tests', function() {
     var db;
 
     beforeEach(function(done) {
-        db = minisql.createConnection({ user: creds.user, password: creds.password })
+        var setup = [
+            'set global max_allowed_packet = 1000000000',
+            'create database if not exists test',
+        ]
+        var teardown = []
+        db = minisql.createConnection({ user: creds.user, password: creds.password,
+            setup: setup, teardown: teardown })
         utils.runSteps([
             function(next) { db.connect(next) },
-            function(next) { db.query('set global max_allowed_packet = 1000000000;', next) },
-            function(next) { db.query('create database if not exists test;', next) },
             function(next) { db.query('use test;', next) },
         ], done)
     })
