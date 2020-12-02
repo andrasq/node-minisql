@@ -89,6 +89,9 @@ rows or a status.  The params array, if provided, will be interpolated into the 
 with one parameter replacing each `?` in the query.  Numbers, blobs and arrays are recognized,
 everything else is converted to string.
 
+Returned errors will have the property `query` set to (an abridged version) of the failed query and
+properties `errorCode` and `errorMessage` copied from the database server error response.
+
 To obtain information about the query, including the column names, use `db.queryInfo()`.  It
 returns timing `info.duration_ms`, and the column names in `info.columnNames`.
 
@@ -105,7 +108,6 @@ Ideas for Future Work
 ---------------------
 
 - connection pools (db sets) (possibly dynamic min-max)
-- maybe: look for creds in `process.env.MYSQL_USER` and `MYSQL_PASSWORD`
 - "raw" mode, return response packets in buffer(s) without decoding (for trans-shipment)
 - see whether can avoid buffer copies, instead return array of response chunks
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
