@@ -311,17 +311,23 @@ describe('minisql', function() {
 
                 done()
             })
-            it('builds query fast', function(done) {
+            it('interpolates arguments and composes query fast', function(done) {
                 packman.sendPacket = function() { return 1 }    // fast stub
-                db._readResult = function(query, seqId, startMs, callback) { callback() }
+                var queryString;
+                db._readResult = function(query, seqId, startMs, callback) { queryString = query; callback() }
 
                 var args = [1, 2, ['two', 3]]
+                var ix = 0, queries = [
+                    'select ?, ?, ? from _mock',
+                    'select * from _mock where a = ? and b = ? and c in (?)',
+                ]
                 console.time('send interpolate query')
-                utils.repeatFor(1000000, function(next) { db.query('SELECT ?, ?, ? FROM _mock', args, next) }, function() {
+                utils.repeatFor(100000, function(next, ix) { db.query(queries[ix & 1], args, next) }, function() {
                     console.timeEnd('send interpolate query')
                     done()
-                    // 1 million query interpolations in 50ms
                 })
+                // 100k queries prepared in 160ms (60ms if no args) lowers the 100k/s db rate to 90k/s
+                // NOTE: could be lowered to 90ms by using template-specific interpolation functions
             })
         })
 
