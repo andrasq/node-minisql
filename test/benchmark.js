@@ -5,6 +5,7 @@
 if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
 
 var timeit = require('qtimeit');
+var utils = require('../lib/utils');
 
 var mysqule, mysql, mysql2, mariadb;
 var dbMysqule, dbMysql, dbMysql2, dbMariadb;
@@ -19,7 +20,7 @@ var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database
 console.log("AR: Starting.");
 var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
-runSteps([
+utils.runSteps([
     function(next) {
         if (!mysqule) return next();
         console.log("mysqule %s", require('../package.json').version);
@@ -123,31 +124,5 @@ function runQueryParallel(sql, count, callback) {
         if (mysqule) bench['mysqule_2'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
         // if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { runem(dbMysqule, '_select', sql, cb) };
     }
-    repeatFor(loopCount, function(done) { timeit.bench(bench, done) }, callback);
-}
-
-function runSteps(steps, callback) {
-    var ix = 0;
-    (function _loop(err, a1, a2) {
-        if (err || ix >= steps.length) return callback(err, a1, a2);
-        steps[ix++](_loop, a1, a2);
-    })()
-}
-
-function repeatFor(n, proc, callback) {
-    (function _loop(err) {
-        if (err || n-- <= 0) return callback(err);
-        proc(_loop);
-    })()
-}
-
-function getNames(items, field) {
-    var names = new Array();
-    for (var i=0; i<items.length; i++) names.push(items[i][field]);
-    return names;
-}
-function buildHash(names, values) {
-    var hash = {};
-    for (var i=0; i<values.length; i++) hash[names[i]] = values[i];
-    return hash;
+    utils.repeatFor(loopCount, function(done) { timeit.bench(bench, done) }, callback);
 }

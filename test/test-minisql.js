@@ -10,6 +10,7 @@ var events = require('events')
 var net = require('net')
 var qmock = require('qmock')
 var minisql = require('../')
+var utils = require('../lib/utils')
 
 var setImmediate = global.setImmediate || process.nextTick
 
@@ -19,14 +20,6 @@ var fromBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.from : Buffer')
 var noop = function(){}
 
 var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user', password: 'password' }
-
-function repeatFor(n, proc, callback) {
-    var ncalls = 0;
-    (function _loop(err) {
-        if (err || n-- <= 0) return callback(err);
-        (ncalls++ > 100) ? process.nextTick(_loop) : proc(_loop);
-    })()
-}
 
 describe('minisql', function() {
     var db, packman, packeteer, socket, connectStub
@@ -324,7 +317,7 @@ describe('minisql', function() {
 
                 var args = [1, 2, ['two', 3]]
                 console.time('send interpolate query')
-                repeatFor(1000000, function(next) { db.query('SELECT ?, ?, ? FROM _mock', args, next) }, function() {
+                utils.repeatFor(1000000, function(next) { db.query('SELECT ?, ?, ? FROM _mock', args, next) }, function() {
                     console.timeEnd('send interpolate query')
                     done()
                     // 1 million query interpolations in 50ms

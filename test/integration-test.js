@@ -8,6 +8,7 @@
 var assert = require('assert')
 var qmock = require('qmock')
 var minisql = require('../')
+var utils = require('../lib/utils')
 var Db = minisql.Db
 
 var creds = { host: 'localhost', port: 3306, database: 'test',
@@ -16,27 +17,12 @@ var creds = { host: 'localhost', port: 3306, database: 'test',
 var setImmediate = global.setImmediate || process.nextTick
 var fromBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.from : Buffer');
 
-function runSteps(steps, callback) {
-    var ix = 0;
-    (function _loop(err, a1, a2) {
-        if (err || ix >= steps.length) return callback(err, a1, a2);
-        steps[ix++](_loop, a1, a2);
-    })()
-}
-
-function repeatFor(n, proc, callback) {
-    (function _loop(err) {
-        if (err || n-- <= 0) return callback(err);
-        proc(_loop);
-    })()
-}
-
 describe('integration tests', function() {
     var db;
 
     beforeEach(function(done) {
         db = minisql.createConnection({ user: creds.user, password: creds.password })
-        runSteps([
+        utils.runSteps([
             function(next) { db.connect(next) },
             function(next) { db.query('set global max_allowed_packet = 1000000000;', next) },
             function(next) { db.query('create database if not exists test;', next) },
@@ -236,7 +222,7 @@ describe('integration tests', function() {
             })
         })
         it('returns numbers, strings, floats, binary, with column info', function(done) {
-            runSteps([
+            utils.runSteps([
                 function(next) {
                     db.query('CREATE TEMPORARY TABLE _junk (x INT, a CHAR(20), f FLOAT, b BLOB)', next)
                 },
@@ -333,7 +319,7 @@ describe('integration tests', function() {
                 var steps = new Array(2000)
                 for (var i=0; i<steps.length; i++) steps[i] = _call
                 var t1 = Date.now()
-                runSteps(steps, function(err) {
+                utils.runSteps(steps, function(err) {
                     var t2 = Date.now()
                     console.log("AR: ran %d calls (%d ms)", steps.length, t2 - t1)
                     // 83ms for 2k calls, 395ms for 20k

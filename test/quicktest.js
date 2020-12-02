@@ -11,6 +11,7 @@ var qibl = require('qibl')
 //var minisql = require('mysql')
 //var minisql = require('mysql2')
 var minisql = require('../')
+var utils = require('../lib/utils')
 
 var hrtime = process.hrtime || function() { var t = Date.now(); return [t/1000, 0] }
 function microtime() { var ms = hrtime(); return ms[0] * 1000 + ms[1] / 1e6 }
@@ -29,7 +30,7 @@ console.log("AR: auth time (%d ms)", t1 - t0);
 
     var sql = 'SELECT * FROM _test'
     var t1, t2, sql;
-    runSteps([
+    utils.runSteps([
         function(next) {
             db.query('select 1', next);
         },
@@ -117,15 +118,6 @@ console.log("AR: parallel %d queries of '%s' in total %d ms: %d avg", limit, _sq
             callback();
         })
     })(i);
-}
-
-// iterateSteps adapted from miniq, originally from qrepeat and aflow
-function runSteps(steps, callback) {
-    var ix = 0;
-    (function _loop(err, a1, a2) {
-        if (err || ix >= steps.length) return callback(err, a1, a2);
-        steps[ix++](_loop, a1, a2);
-    })()
 }
 
 // adapt mariadb to callbacks to run the benchmark
