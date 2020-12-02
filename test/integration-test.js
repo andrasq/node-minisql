@@ -6,6 +6,7 @@
 'use strict'
 
 var assert = require('assert')
+var qmock = require('qmock')
 var minisql = require('../')
 var Db = minisql.Db
 
@@ -355,5 +356,30 @@ describe('integration tests', function() {
     })
 
     describe('datatypes', function() {
+    })
+
+    describe('edge cases', function() {
+        describe('query', function() {
+            it('returns timings even without hrtime', function(done) {
+                qmock.disrequire('../')
+                var hrtime = process.hrtime
+                process.hrtime = undefined
+                var minisql = require('../')
+
+                var largeString = new Array(1e6 + 1).join('x')
+                var db = minisql.createConnection(creds).connect(function(err) {
+                    // ignore errors until hrtime is restored
+                    db.query('SELECT 1, 2.5, ? AS bulk', [largeString], function(err, rows) {
+                        process.hrtime = hrtime
+                        assert.ifError(err)
+                        assert.deepEqual(rows, [[1, 2.5, largeString]])
+                        var info = db.queryInfo()
+                        assert.equal(typeof info.duration_ms, 'number')
+                        assert.ok(info.duration_ms > 2)
+                        done()
+                    })
+                })
+            })
+        })
     })
 })
