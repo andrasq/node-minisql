@@ -299,6 +299,25 @@ describe('minisql', function() {
                 assert.ok(spy.called)
                 done()
             })
+            it('interpolates aruments into query', function(done) {
+                packman.sendPacket = function() { return 1 }    // fast stub
+                db._readResult = function(query, seqId, startMs, callback) { queryString = query }
+                var queryString;
+                db.query('SELECT ? FROM _test WHERE id IN (?)', [1, [2.5, "foo", ["bar"]]], done)
+                assert.equal(queryString, "SELECT 1 FROM _test WHERE id IN (2.5, 'foo', 'bar')")
+                done()
+            })
+            it('escapes special chars in interpolated arguments', function(done) {
+                packman.sendPacket = function() { return 1 }    // fast stub
+                db._readResult = function(query, seqId, startMs, callback) { queryString = query }
+                var queryString;
+
+                // ', ", \, \0 are all escaped as \', \", \\, \\\0
+                db.query('SELECT ?, ?, ?', ["foo'bar\\'", 'foo"bar\x00"', ["'", '\\']], done)
+                assert.equal(queryString, "SELECT 'foo\\'bar\\\\\\'', 'foo\\\"bar\\\u0000\\\"', '\\\'', '\\\\'")
+
+                done()
+            })
             it('builds query fast', function(done) {
                 packman.sendPacket = function() { return 1 }    // fast stub
                 db._readResult = function(query, seqId, startMs, callback) { callback() }
