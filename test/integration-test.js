@@ -315,6 +315,18 @@ describe('integration tests', function() {
                 done()
             })
         })
+        it('can send commands in parallel', function(done) {
+            var ndone = 0
+            var runQuery = function(x) {
+                db.query('SELECT ?, ?', [x, 'three'], function(err, rows) {
+                    ndone += 1
+                    assert.ifError()
+                    assert.deepEqual(rows, [[x, 'three']])
+                    if (ndone === 1000) done()
+                })
+            }
+            for (var i = 0; i < 1000; i++) runQuery(i * 7)
+        })
         describe('speed', function() {
             it('is quick', function(done) {
                 var steps = new Array(2000)
