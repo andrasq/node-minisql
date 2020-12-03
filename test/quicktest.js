@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2020 Andras Radics
+ * Licensed under the Apache License, Version 2.0
+ */
+
 // npm install qibl mysql mysql2 mariadb
 
 'use strict';
