@@ -133,7 +133,9 @@ Observations
 - sending a 100mb string takes 960 ms (convert string to bytes and write)
   (Sending a binary blob is slower, it is sent as a hex dump)
 - receiving 100mb takes 490 mb converted to a string, and 460 mb as a binary blob (Buffer)
-
+- query param interpolation (4 short num, num, string, num) adds 100ms per 100k queries prepared, from 60ms to 160ms,
+  about 10% of the max observed db throughput of about 110k queries per second.  Compiled interpolation could lower
+  this to about 3% (see compileVinterpolate in qibl@1.8.0-dev)
 
 Ideas and Todo
 --------------
