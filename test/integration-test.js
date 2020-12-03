@@ -290,6 +290,7 @@ describe('integration tests', function() {
                 assert.equal(rows[0][0], str20m)
 // console.log("AR: mem", process.memoryUsage())
 // 200mb string payload uses 1gb rss, 600mb heap, 432mb external.  250mb crashes.
+                assert.equal(typeof rows[0][0], 'string')
                 done()
             })
         })
@@ -303,7 +304,30 @@ describe('integration tests', function() {
                 assert.ifError(err)
                 assert.equal(rows.length, 1)
                 assert.equal(rows[0][0], str40m)
+                assert.equal(typeof rows[0][0], 'string')
                 done()
+            })
+        })
+        it('can send large 100mb', function(done) {
+            var str100m = new Array(100001).join(new Array(1001).join('x')).slice()
+            db.query('SELECT LENGTH(?)', [str100m], function(err, rows) {
+                assert.ifError(err)
+                assert.equal(rows[0][0], str100m.length)
+                done()
+                // 960 ms to send 100m
+            })
+        })
+        it('can receive large 100mb', function(done) {
+            var length = 100e6
+            db.query('SELECT REPEAT("x", ?)', [length], function(err, rows) {
+                assert.ifError(err)
+                assert.equal(rows[0][0].length, length)
+                // assert.equal(typeof rows[0][0], 'string')
+                // FIXME: REPEAT and RPAD to length > 0x5555 (21845) return a blob (type 250),
+                // even when CAST() AS CHAR).  Want to get a large _string_ response.
+                // Could be an internal temp table, see "column length too big for column" issues
+                done()
+                // 460 ms to receive 100m blob, and 490ms if extracting the 100mb string
             })
         })
         it('can send commands in parallel', function(done) {
