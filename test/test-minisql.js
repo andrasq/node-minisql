@@ -337,10 +337,10 @@ describe('minisql', function() {
             it('queues reader if busy reading', function(done) {
                 db.isReading = true
                 var cb = function() {}
-                assert.equal(db._readerQueue.length, 0) // empty before
+                assert.equal(db.readWaitlist.length, 0) // empty before
                 db._readResult('select something', 1, 1234.5, cb)
-                assert.equal(db._readerQueue.length, 1) // not empty after
-                assert.deepEqual(db._readerQueue[0], ['select something', 1, 1234.5, cb])
+                assert.equal(db.readWaitlist.length, 1) // not empty after
+                assert.deepEqual(db.readWaitlist[0], ['select something', 1, 1234.5, cb])
                 done()
             })
             it('serializes calls', function(done) {
