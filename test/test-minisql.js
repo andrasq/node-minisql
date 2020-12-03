@@ -13,7 +13,7 @@ var minisql = require('../')
 var utils = require('../lib/utils')
 var my = require('../lib/mysql')
 
-var setImmediate = global.setImmediate || process.nextTick
+var setImmediate = utils.setImmediate
 
 // from `qibl`
 var allocBuf = eval('parseInt(process.versions.node) > 9 ? Buffer.alloc : Buffer')
