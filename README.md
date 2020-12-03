@@ -103,8 +103,40 @@ returns timing `info.duration_ms`, and the column names in `info.columnNames`.
 Close the connection.
 
 
-Ideas for Future Work
----------------------
+Observations
+------------
+
+- all in all, the MySQL binary protocol is refreshingly simple (once mind wrapped around it)
+- short strings benefits from js utf8 string conversion library (used my own q-utf8 that I wrote for BSON coding)
+- mariadb crashes under node-v15 (args to write?)
+- binary text is an easier format to encode/decode than mongodb binary
+- localhost socket speed is 3.4gb / sec, buffer concat is 5.5gb/s
+- raw mode data streaming might not be worth the effort, conversion takes 10%, 17ms out of a 170ms response
+  A: typical 17m send/receive timing: compose+write 15ms, query+response 140ms, decode 17ms
+  A: but would remove cpu load from the middle tier
+- passing arrays of 65k chunks is not worth it, concat takes 3 ms per 2^24 bytes (mysql packet size)
+  A: 17mb and 34mb buffer copies (data chunks to packet) only take 3ms per 2^24 bytes out of 172 and 349ms call durations, ie 5.5GB/s
+  (160ms of the 172ms test is getting from the write to first response byte from db, 175ms to last response
+    => 15ms for 17+17mb via tcp/ip ie 3.4GB/s)
+- it is slightly faster to buf.copy concat than to Buffer.concat (1-2%, but not as visible on huge concats)
+  Of a 160ms response chunk concat is 3.2ms (and packet merge another 3.7ms), so dedicated raw mode support
+    would save 6.9ms / 160ms = 4.3%
+- tune the common cases: optimizing partial-chunk packets netted another 10% speedup, from 52k to 58k/s v10, 59k to 65k/s v14.
+  This might be a common occurrence for even small serial queries, also a bit piplined queries
+  (effect is too large to be 3-5% caching effects that are often seen with nodejs)
+- mapping the row values into a hash of key-value pairs slows queries 6-8% (still faster than mariadb)
+- mysql is running 80% busy with small-query workload, nodejs 40% (single thread) (count(*) from collations, 6k/sec)
+  (series: 85% node, 50% mysql)
+  (parallel: 110% node, 85% mysql)
+  (count(*): 20% node, 95% mysql)
+  (100 rows from collations: 40% node, 60% mysql)
+- sending a 100mb string takes 960 ms (convert string to bytes and write)
+  (Sending a binary blob is slower, it is sent as a hex dump)
+- receiving 100mb takes 490 mb converted to a string, and 460 mb as a binary blob (Buffer)
+
+
+Ideas and Todo
+--------------
 
 - connection pools (db sets) (possibly dynamic min-max)
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
