@@ -143,7 +143,8 @@ Ideas and Todo
 - connection pools (db sets) (possibly dynamic min-max)
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 - automatic reconnect (on timeout and error)
-- postgresql back-end plugin
+- abstract Packman packet boundary detection to make more reusable (ie, plug in my.packetLength and my.packetType (Header))
+- postgresql back-end plugin (nb: is big-endian)
 
 
 Changelog
