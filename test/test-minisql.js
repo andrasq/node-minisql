@@ -373,6 +373,25 @@ describe('minisql', function() {
                 done()
                 // array: 10k in 8ms, 100k in 28ms, 1m in 204ms; hash: 10k in 12ms, 100k in 35ms, 1m in 270ms
             })
+            describe('errors', function() {
+                it('errors out on unexpected EOF packet', function(done) {
+                    // server should never send an EOF response, only OK, ERROR, INFILE or data
+                    qmock.stub(db.packman, 'getPacket').yields(null, utils.fromBuf([0, 0, 0, 1, my.myHeaders.EOF]))
+                    db._readResult('query', 1, 1234, function(err, rows) {
+                        assert.ok(err)
+                        assert.ok(err.message.match(/unexpected EOF/))
+                        done()
+                    })
+                })
+                it('does not implement LOCAL INFILE', function(done) {
+                    qmock.stub(db.packman, 'getPacket').yields(null, utils.fromBuf([0, 0, 0, 1, my.myHeaders.LOCAL, 0x4a]))
+                    db._readResult('query', 1, 1234, function(err, rows) {
+                        assert.ok(err)
+                        assert.ok(err.message.match(/not handled/))
+                        done()
+                    })
+                })
+            })
         })
 
         describe('_select', function() {
