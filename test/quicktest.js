@@ -11,8 +11,7 @@ if (!/quicktest/.test(require('path').basename(process.argv[1]))) return
 
 var util = require('util')
 var qibl = require('qibl')
-//var mariadb = require('mariadb');
-//var minisql = mariasql()
+//var mariadb = require('mariadb'); var minisql = mariasql()
 //var minisql = require('mysql')
 //var minisql = require('mysql2')
 var minisql = require('../')
