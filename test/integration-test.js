@@ -352,6 +352,7 @@ describe('integration tests', function() {
         describe('query', function() {
             it('returns timings even without hrtime', function(done) {
                 qmock.disrequire('../')
+                qmock.disrequire('../lib/utils')
                 var hrtime = process.hrtime
                 process.hrtime = undefined
                 var minisql = require('../')
@@ -366,6 +367,8 @@ describe('integration tests', function() {
                         var info = db.queryInfo()
                         assert.equal(typeof info.duration_ms, 'number')
                         assert.ok(info.duration_ms > 2)
+                        // double-check that it actually disabled hrtime: should have only ms precision
+                        assert.ok((info.duration_ms + .000000001) % .001 < .00000001)
                         done()
                     })
                 })
