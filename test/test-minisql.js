@@ -335,7 +335,7 @@ describe('minisql', function() {
 
         describe('_readResult', function() {
             it('queues reader if busy reading', function(done) {
-                db._busyQ = true
+                db.isReading = true
                 var cb = function() {}
                 assert.equal(db._readerQueue.length, 0) // empty before
                 db._readResult('select something', 1, 1234.5, cb)
