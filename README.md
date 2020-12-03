@@ -11,6 +11,7 @@ Still somewhat experimental, but reads and writes the database.  _Work in progre
 * low latency
 * pipelined queries
 * parameter interpolation
+* setup / teardown connection commands
 
 
 Overview
@@ -108,8 +109,6 @@ Ideas for Future Work
 ---------------------
 
 - connection pools (db sets) (possibly dynamic min-max)
-- "raw" mode, return response packets in buffer(s) without decoding (for trans-shipment)
-- see whether can avoid buffer copies, instead return array of response chunks
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 - automatic reconnect (on timeout and error)
 - postgresql back-end plugin
