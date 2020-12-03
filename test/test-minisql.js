@@ -208,7 +208,7 @@ describe('minisql', function() {
         })
     })
 
-    describe('Db', function() {
+    describe('Session', function() {
         describe('connect', function() {
             it('rejects protocol other than v10', function(done) {
                 var packet = allocBuf(60); fill(packet, 0); packet[3] = 0; packet[4] = 99

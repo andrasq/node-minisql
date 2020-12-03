@@ -9,7 +9,6 @@ var assert = require('assert')
 var qmock = require('qmock')
 var minisql = require('../')
 var utils = require('../lib/utils')
-var Db = minisql.Db
 
 var creds = { host: 'localhost', port: 3306, database: 'test',
               user: process.env.MYSQL_USER || process.env.USER, password: process.env.MYSQL_PASSWORD }
@@ -50,7 +49,7 @@ describe('integration tests', function() {
         })
         it('connects and talks to the database', function(done) {
             var now = Date.now()
-            var db = new Db(creds)
+            var db = minisql.createConnection(creds)
             db.connect(function(err) {
                 assert.ifError(err)
                 db.query('SELECT 1, 2.5', function(err, rows) {
