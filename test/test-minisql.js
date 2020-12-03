@@ -11,6 +11,7 @@ var net = require('net')
 var qmock = require('qmock')
 var minisql = require('../')
 var utils = require('../lib/utils')
+var my = require('../lib/mysql')
 
 var setImmediate = global.setImmediate || process.nextTick
 
@@ -321,9 +322,10 @@ describe('minisql', function() {
                     'select ?, ?, ? from _mock',
                     'select * from _mock where a = ? and b = ? and c in (?)',
                 ]
-                console.time('send interpolate query')
+                console.time('time to send 100k 4-arg queries')
                 utils.repeatFor(100000, function(next, ix) { db.query(queries[ix & 1], args, next) }, function() {
-                    console.timeEnd('send interpolate query')
+                    console.timeEnd('time to send 100k 4-arg queries')
+                    // 160ms if interpolating 4, 60ms if no args, ie 1ms per 1k queries
                     done()
                 })
                 // 100k queries prepared in 160ms (60ms if no args) lowers the 100k/s db rate to 90k/s
@@ -340,6 +342,24 @@ describe('minisql', function() {
                 assert.equal(db._readerQueue.length, 1) // not empty after
                 assert.deepEqual(db._readerQueue[0], ['select something', 1, 1234.5, cb])
                 done()
+            })
+            it('serializes calls', function(done) {
+                var callTimes = []
+                qmock.stub(db.packman, 'getPacket',
+                    function(cb) {
+                        callTimes.push(utils.microtime())
+                        var packet = my.convertErrorToPacket(new Error('mock'))
+                        setTimeout(function() { cb(null, packet) }, 5)
+                    })
+                var ndone = 0, ncalls = 40
+                for (var i = 0; i < ncalls; i++) db._readResult('test query', 1, utils.microtime(), function(err, ret) {
+                    if (++ndone === ncalls) {
+                        assert.equal(callTimes.length, ncalls)
+                        // allow up to 2 ms jitter, especially on older node
+                        for (var i = 1; i < callTimes.length; i++) assert.ok(callTimes[i] > callTimes[i - 1] + 3)
+                        done()
+                    }
+                })
             })
         })
 
