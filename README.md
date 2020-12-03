@@ -76,7 +76,7 @@ Options:
 - setup - TODO: array of sql commands to run before using the connection
 - teardown - TODO: array of sql commands to run before closing the connection
 
-### db = db.connect( onConnect(err) )
+### db = db.connect( whenConnected(err) )
 
 Connect to the database, authenticate with the credentials supplied to createConnection, and
 configure the connection.  Returns the same db object it was called on, for chaining.

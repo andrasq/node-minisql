@@ -39,18 +39,19 @@ describe('integration tests', function() {
     })
 
     describe('connect', function() {
+        var noop = function(){}
         it('requires username', function(done) {
-            assert.throws(function() { new Db().connect({}, function(){}) }, /user required/)
+            assert.throws(function() { minisql.createConnection({}, function(){}).connect(noop) }, /user required/)
             done()
         })
         it('requires callback',function(done) {
-            assert.throws(function() { new Db().connect({user: 'test'}) }, /callback required/)
+            assert.throws(function() { minisql.createConnection(creds).connect() }, /callback required/)
             done()
         })
         it('connects and talks to the database', function(done) {
             var now = Date.now()
-            var db = new Db()
-            db.connect(creds, function(err) {
+            var db = new Db(creds)
+            db.connect(function(err) {
                 assert.ifError(err)
                 db.query('SELECT 1, 2.5', function(err, rows) {
                     assert.equal(rows.length, 1)
@@ -61,7 +62,7 @@ describe('integration tests', function() {
         })
         it('connects to a named database', function(done) {
             var localCreds = { user: creds.user, password: creds.password, database: 'information_schema' }
-            db.connect(localCreds, function(err) {
+            var db = minisql.createConnection(localCreds).connect(function(err) {
                 assert.ifError(err)
                 db.query('SHOW TABLES', function(err, rows) {
                     assert.ifError(err)
@@ -72,22 +73,11 @@ describe('integration tests', function() {
         })
         it('connects without a database', function(done) {
             var localCreds = { user: creds.user, password: creds.password }
-            db.connect(localCreds, function(err) {
+            var db = minisql.createConnection(localCreds).connect(function(err) {
                 assert.ifError(err)
                 db.query('SHOW TABLES', function(err, rows) {
                     assert.ok(err)
                     assert.ok(/No database/.test(err.message))
-                    done()
-                })
-            })
-        })
-        it('connects with createConnection', function(done) {
-            var localCreds = { user: creds.user, password: creds.password, database: 'test' }
-            minisql.createConnection(localCreds).connect(function(err) {
-                assert.ifError()
-                db.query('SELECT 1', function(err, rows) {
-                    assert.ifError(err)
-                    assert.deepEqual(rows, [ [1] ])
                     done()
                 })
             })
