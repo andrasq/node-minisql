@@ -293,7 +293,7 @@ describe('integration tests', function() {
                 done()
             })
         })
-        it('can send and receive commands spanning 3 packets', function(done) {
+        it('can send and receive large commands spanning 3 packets', function(done) {
             var str1k = new Array(1001).join('x').slice()
             var str40m = new Array(35001).join(str1k).slice()
             var sql = 'SELECT "' + str40m + '"';
