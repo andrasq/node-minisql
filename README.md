@@ -8,10 +8,11 @@ size of the traditional packages.  Tested to work with nodejs v0.8 through v15.3
 
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
-* low latency
-* pipelined queries
+* low latency (< 0.2 ms response)
+* pipelined queries (115k / sec)
 * parameter interpolation
-* setup / teardown connection commands
+* connection setup / teardown steps
+* nodejs v0.8 - v15
 
 
 Overview
@@ -42,23 +43,20 @@ Example
         })
     })
 
-node-v14.9.0 ./test/benchmark.js:
+Profile of verion 0.7.0, `node-v14.9.0 ./test/benchmark.js`:
 
     qtimeit=0.22.2 node=14.9.0 v8=8.4.371.19-node.13 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
     arch=x64 mhz=4492[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
     -------- SELECT 1, "series", 3.5
-    qtimeit=0.22.2 node=14.15.1 v8=8.4.371.19-node.17 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
-    arch=x64 mhz=4489[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
-    name          speed           rate
-    mysql        27,721 ops/sec   1000 >>>>>>>>>>
-    mysql2       40,818 ops/sec   1472 >>>>>>>>>>>>>>>
-    mariadb      49,283 ops/sec   1778 >>>>>>>>>>>>>>>>>>
-    mysqule      63,339 ops/sec   2285 >>>>>>>>>>>>>>>>>>>>>>>
+    mysql        27,558 ops/sec   1023 >>>>>>>>>>
+    mysql2       41,327 ops/sec   1534 >>>>>>>>>>>>>>>
+    mariadb      49,097 ops/sec   1822 >>>>>>>>>>>>>>>>>>
+    mysqule      65,165 ops/sec   2418 >>>>>>>>>>>>>>>>>>>>>>>>
     -------- SELECT 1, "parallel", 3.5
-    mysql        29,464 ops/sec   1008 >>>>>>>>>>
-    mysql2       41,273 ops/sec   1411 >>>>>>>>>>>>>>
-    mariadb     105,723 ops/sec   3616 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqule     115,648 ops/sec   3955 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysql        29,753 ops/sec   1000 >>>>>>>>>>
+    mysql2       42,727 ops/sec   1436 >>>>>>>>>>>>>>
+    mariadb     105,797 ops/sec   3556 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqule     115,937 ops/sec   3897 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api
