@@ -29,7 +29,7 @@ utils.runSteps([
     function(next) {
         if (!mysqule) return next();
         console.log("mysqule %s", require('../package.json').version);
-        dbMysqule = new mysqule.createConnection(creds).connect(next);
+        dbMysqule = mysqule.createConnection(creds).connect(next);
     },
     function(next) {
         if (!mysql) return next();

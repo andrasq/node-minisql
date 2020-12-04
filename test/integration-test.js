@@ -10,7 +10,7 @@ var qmock = require('qmock')
 var minisql = require('../')
 var utils = require('../lib/utils')
 
-var creds = { host: 'localhost', port: 3306, database: 'test',
+var creds = { host: 'localhost', port: 3306,
               user: process.env.MYSQL_USER || process.env.USER, password: process.env.MYSQL_PASSWORD }
 
 var setImmediate = global.setImmediate || process.nextTick
@@ -25,8 +25,7 @@ describe('integration tests', function() {
             'create database if not exists test',
         ]
         var teardown = []
-        db = minisql.createConnection({ user: creds.user, password: creds.password,
-            setup: setup, teardown: teardown })
+        db = minisql.createConnection(creds)
         utils.runSteps([
             function(next) { db.connect(next) },
             function(next) { db.query('use test;', next) },
@@ -372,11 +371,11 @@ describe('integration tests', function() {
                 var largeString = new Array(1e6 + 1).join('x')
                 var db = minisql.createConnection(creds).connect(function(err) {
                     // ignore errors until hrtime is restored
-                    db.query('SELECT 1, 2.5, ? AS bulk', [largeString], function(err, rows) {
+                    var conn = db.query('SELECT 1, 2.5, ? AS bulk', [largeString], function(err, rows) {
                         process.hrtime = hrtime
                         assert.ifError(err)
                         assert.deepEqual(rows, [[1, 2.5, largeString]])
-                        var info = db.queryInfo()
+                        var info = conn.queryInfo()
                         assert.equal(typeof info.duration_ms, 'number')
                         assert.ok(info.duration_ms > 2)
                         // double-check that it actually disabled hrtime: should have only ms precision
