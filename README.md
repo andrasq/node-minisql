@@ -206,6 +206,7 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.8.2 - fix decodeBytesTo dst, fix integration test db setup, cleanups
 - 0.8.0 - db now either a connection or a connection pool, setup/teardown commands,
           deprecated first-draft interfaces
 - 0.7.0 - restructure files, more utils, more tests, faster small-packet extraction
