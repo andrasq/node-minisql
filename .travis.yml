@@ -7,7 +7,7 @@ node_js:
 services:
   - mysql
 env:
-  - MYSQL_USER=root
+  - MYSQL_USER=root MYSQL_PASSWORD=""
 before_install:
   - npm install -g qnit
 after_success:

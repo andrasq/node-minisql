@@ -1,9 +1,10 @@
 {
   "name": "mysqule",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "small, quick mysql database bindings",
   "license": "Apache-2.0",
   "main": "lib/minisql",
+  "files": ["README.md", "lib", "test"],
 
   "author": "andrasq",
   "readme": "see README.md in the repo",
@@ -17,6 +18,7 @@
   },
 
   "scripts": {
+    "NOTE re testing: need qnit and a mysql database.  See .travis.yml in the repo": "",
     "test": "qnit test",
     "coverage": "nyc -r text -r lcov qnit -t 10000 test",
     "clean": "rm -rf coverage .nyc_output"

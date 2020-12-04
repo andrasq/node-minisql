@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2020 Andras Radics
+ * Licensed under the Apache License, Version 2.0
+ */
+
 'use strict'
 
 var assert = require('assert')

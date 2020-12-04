@@ -13,6 +13,8 @@ Still somewhat experimental, but reads and writes the database.  _Work in progre
 * parameter interpolation
 * connection setup / teardown steps
 * nodejs v0.8 - v15
+* automatic setup / teardown commands
+* automatic connection pooling
 
 
 Overview
@@ -65,7 +67,8 @@ Api
 ### db = mysqule.createConnection( options )
 
 Create a new database connection manager.  This is a fast low-cost step, it just sets up
-internal structures, must still `connect` to the database.
+internal structures.  Returns a database handle that can run queries once `connect` has
+bee called.
 
 Options:
 - user - username to authenticate as.  Required; no default.
@@ -73,34 +76,60 @@ Options:
 - host - hostname to connect to.  The default is localhost at `0.0.0.0`.
 - port - port to connect to.  Default is `3306`.
 - database - database to connect to, if any.  No default.
-- setup - TODO: array of sql commands to run before using the connection
-- teardown - TODO: array of sql commands to run before closing the connection
+- setup - array of sql commands to run before using the connection.  Default is [] none.
+- teardown - array of sql commands to run before closing the connection.  Default is [] none.
+- connections: if set to > 1 use a connection pool to run queries.  Default is 1.
+- reconnect: TODO: reopen the db connection if it becomes unusable
+
+    db = mysqule.createConnection({
+        user: 'andras', password: '****',
+        setup: ['set global max_allowed_packet = 10000000'],
+    }).connect()
 
 ### db = db.connect( whenConnected(err) )
 
 Connect to the database, authenticate with the credentials supplied to createConnection, and
-configure the connection.  Returns the same db object it was called on, for chaining.
+configure the connection(s).  Returns the same db object it was called on, for chaining.
+Calls the `whenConnected` notification when the connection is ready to use.
 
-### db.query( sql, [params,] callback(err, result) )
+The `setup` sql commands are run on every newly opened connection.  Any `setup` step error
+is passed `whenConnected` and stops running any more setup steps.
+
+### conn = db.query( sql, [params,] callback(err, result) )
 
 Run the SQL query on the server, and return its response.  The response may be a an array of
 rows or a status.  The params array, if provided, will be interpolated into the query string
 with one parameter replacing each `?` in the query.  Numbers, blobs and arrays are recognized,
 everything else is converted to string.
 
-Returned errors will have the property `query` set to (an abridged version) of the failed query and
-properties `errorCode` and `errorMessage` copied from the database server error response.
+Returns the connection used for the query, for stateful command sequences and/or status
+gathering with `queryInfo`.
 
-To obtain information about the query, including the column names, use `db.queryInfo()`.  It
-returns timing `info.duration_ms`, and the column names in `info.columnNames`.
+Errors passed to the callback will have the property `query` set to (an abridged version) of the
+failed query and properties `errorCode` and `errorMessage` copied from the database server error
+response.
 
-    db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
+### conn.queryInfo( )
+
+To obtain information about the query, including the column names, use `conn.queryInfo()`.  It
+returns elapsed milliseconds `info.duration_ms`, and the column names in `info.columnNames`.
+If queryInfo is called on db, it will alays return no duration `0` and no column names `[]`.
+
+    conn = db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
         // => up to 10 rows, each row an array of values
+        conn.queryInfo()
+        // => { duration_ms: 3.52, columnNames: ['a', 'b'] }
     })
+
+### conn = db.getConnection( )
+
+Obtain a db handle that talks to a single connection.  The returned connection has all the
+same methods of `db` but always uses the same connection.
 
 ### db.end( [callback(err)] )
 
-Close the connection.
+Run the `teardown` steps on each connection and close them.  Any teardown steps errors are
+passed to the callback, if provided.  The teardown steps stop running on error.
 
 
 Observations
@@ -136,11 +165,13 @@ Observations
 - query param interpolation (4 short num, num, string, num) adds 100ms per 100k queries prepared, from 60ms to 160ms,
   about 10% of the max observed db throughput of about 110k queries per second.  Compiled interpolation could lower
   this to about 3% (see compileVinterpolate in qibl@1.8.0-dev)
+- connection pools (db sets) are of limited use; 2 connections raise the pipelined query throughput
+  from 115 to 123, at which point `node` has pegged the cpu and cannot scale any higher
+
 
 Ideas and Todo
 --------------
 
-- connection pools (db sets) (possibly dynamic min-max)
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 - automatic reconnect (on timeout and error)
 - abstract Packman packet boundary detection to make more reusable (ie, plug in my.packetLength and my.packetType (Header))
@@ -150,6 +181,8 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.8.0 - db now either a connection or a connection pool, setup/teardown commands,
+          deprecated first-draft interfaces
 - 0.7.0 - restructure files, more utils, more tests, faster small-packet extraction
 - 0.6.1 - fix tests and benchmark
 - 0.6.0 - pipeline concurrent queries, not serialize
