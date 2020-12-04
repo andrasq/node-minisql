@@ -118,7 +118,7 @@ describe('minisql', function() {
             var myPacket = fromBuf([1, 0, 0, 1, 99])
             packman._socket.emit('data', myPacket)
             packman.getPacket(function(err, packet) {
-                assert.equal(packet, myPacket)
+                assert.deepEqual(packet, myPacket)
                 done()
             })
         })
