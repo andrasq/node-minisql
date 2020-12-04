@@ -25,7 +25,7 @@ describe('integration tests', function() {
             'create database if not exists test',
         ]
         var teardown = []
-        db = minisql.createConnection(creds)
+        db = minisql.createConnection(utils.assignTo({ setup: setup }, creds))
         utils.runSteps([
             function(next) { db.connect(next) },
             function(next) { db.query('use test;', next) },
