@@ -40,7 +40,7 @@ Example
               host: 'localhost', port: 3306, database: 'test' }
 
     db = mysqule.createConnection(creds).connect(function(err) {
-        db.query("SELECT 1, 'two', NOW();", function(err, rows) {
+        db.query('SELECT 1, "two", NOW()', function(err, rows) {
             // rows => [ [ 1, 'two', '2020-11-23 00:56:15' ], ]
         })
     })
@@ -89,9 +89,14 @@ internal structures.  Returns a database handle that can run queries once `conne
 bee called.
 
     db = mysqule.createConnection({
-        user: 'andras', password: '****',
-        setup: ['set global max_allowed_packet = 10000000'],
-    }).connect()
+        user: 'andras',
+        password: '****',
+        setup: [
+            'set global max_allowed_packet = 10000000',
+        ],
+    }).connect(function(err) {
+        // connected, set up, ready to use
+    })
 
 Options:
 - user - username to authenticate as.  Required; no default.
@@ -134,7 +139,7 @@ To obtain information about the query, including the column names, use `conn.que
 returns elapsed milliseconds `info.duration_ms`, and the column names in `info.columnNames`.
 If queryInfo is called on db, it will alays return no duration `0` and no column names `[]`.
 
-    conn = db.query("SELECT * FROM test LIMIT ?", [10], function(err, rows) {
+    conn = db.query('SELECT * FROM test LIMIT ?', [10], function(err, rows) {
         // => up to 10 rows, each row an array of values
         conn.queryInfo()
         // => { duration_ms: 3.52, columnNames: ['a', 'b'] }
