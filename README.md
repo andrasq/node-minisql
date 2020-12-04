@@ -189,8 +189,9 @@ Observations
 - query param interpolation (4 short num, num, string, num) adds 100ms per 100k queries prepared, from 60ms to 160ms,
   about 10% of the max observed db throughput of about 110k queries per second.  Compiled interpolation could lower
   this to about 3% (see compileVinterpolate in qibl@1.8.0-dev)
-- connection pools (db sets) are of limited use; 2 connections raise the pipelined query throughput
-  from 115 to 123, at which point `node` has pegged the cpu and cannot scale any higher
+- connection pools can boost throughput when the query load is on the database, not nodejs.
+  For simple queries nodejs is the bottleneck (115 -> 123k/s), but for longer duration queries multiple connections
+  can greatly increase throughput (6 conns 6k -> 24k/sec)
 
 
 Ideas and Todo
