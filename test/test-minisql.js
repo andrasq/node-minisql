@@ -45,18 +45,18 @@ describe('minisql', function() {
 
     describe('Packeteer', function() {
         it('tallies total length', function(done) {
-            packeteer.write(fromBuf("abc"))
+            packeteer.writeChunk(fromBuf("abc"))
             assert.equal(packeteer.nbytes, 3)
-            packeteer.write(fromBuf("defghi"))
+            packeteer.writeChunk(fromBuf("defghi"))
             assert.equal(packeteer.nbytes, 9)
             done()
         })
         it('grows first packet to 5', function(done) {
-            packeteer.write(fromBuf([1, 0, 0]))
-            packeteer.write(fromBuf([4]))
-            packeteer.write(fromBuf([5, 6]))
+            packeteer.writeChunk(fromBuf([1, 0, 0]))
+            packeteer.writeChunk(fromBuf([4]))
+            packeteer.writeChunk(fromBuf([5, 6]))
             assert.equal(packeteer.bufs.length, 1)
-            packeteer.write(fromBuf([7, 8]))
+            packeteer.writeChunk(fromBuf([7, 8]))
             assert.equal(packeteer.bufs.length, 2)
             assert.deepEqual(packeteer.bufs[0], fromBuf([1, 0, 0, 4, 5, 6]))
             assert.deepEqual(packeteer.bufs[1], fromBuf([7, 8]))
