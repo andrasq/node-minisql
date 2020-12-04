@@ -34,7 +34,7 @@ utils.runSteps([
     function(next) {
         if (!mysqule) return next();
         console.log("mysqule %s", require('../package.json').version);
-        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: 4 }, creds, creds)).connect(next);
+        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: 6 }, creds, creds)).connect(next);
     },
     function(next) {
         if (!mysql) return next();
@@ -107,6 +107,7 @@ function runQueryPipelined(sql, count, callback) {
     timeit.bench.bargraphScale = 10;
     timeit.bench.timeGoal = .15;
     timeit.bench.opsPerTest = (count <= 1) ? 1 : count;
+    timeit.bench.showTestInfo = true;
     var bench = {};
     if (count <= 1) {
         if (mysql) bench['mysql'] = function(cb) { dbMysql.query(sql, cb) };

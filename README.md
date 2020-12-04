@@ -45,7 +45,7 @@ Example
         })
     })
 
-Profile of verion 0.7.0, `node-v14.9.0 ./test/benchmark.js`:
+Single connection on verion 0.7.0, `node-v14.9.0 ./test/benchmark.js`:
 
     qtimeit=0.22.2 node=14.9.0 v8=8.4.371.19-node.13 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
     arch=x64 mhz=4492[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
@@ -59,6 +59,24 @@ Profile of verion 0.7.0, `node-v14.9.0 ./test/benchmark.js`:
     mysql2       42,727 ops/sec   1436 >>>>>>>>>>>>>>
     mariadb     105,797 ops/sec   3556 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     mysqule     115,937 ops/sec   3897 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Multi-connection `{ connections: 6 }` on version 0.8.0, `node-v14.9.0`:
+
+    mysqule 0.8.0
+    mysqule 0.8.0
+    mysql 2.18.1
+    mariadb 2.0.3
+
+    -------- SELECT COUNT(*), "pipelined" FROM information_schema.collations
+    qtimeit=0.22.2 node=14.15.1 v8=8.4.371.19-node.17 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
+    arch=x64 mhz=4507[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
+    timeGoal=0.75 opsPerTest=10 forkTests=false
+    name             speed           rate
+    mysql            5,593 ops/sec   1023 >>>>>>>>>>
+    mysql2           5,846 ops/sec   1069 >>>>>>>>>>>
+    mariadb          6,398 ops/sec   1170 >>>>>>>>>>>>
+    mysqule          6,397 ops/sec   1170 >>>>>>>>>>>>
+    mysqulePar      26,569 ops/sec   4860 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api
