@@ -115,7 +115,7 @@ function runQueryPipelined(sql, count, params, callback) {
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
     timeit.bench.bargraphScale = 10;
-    timeit.bench.timeGoal = .15;
+    timeit.bench.timeGoal = .45;
     timeit.bench.opsPerTest = (count <= 1) ? 1 : count;
     timeit.bench.showTestInfo = true;
     var bench = {};
