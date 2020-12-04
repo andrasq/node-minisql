@@ -70,6 +70,11 @@ Create a new database connection manager.  This is a fast low-cost step, it just
 internal structures.  Returns a database handle that can run queries once `connect` has
 bee called.
 
+    db = mysqule.createConnection({
+        user: 'andras', password: '****',
+        setup: ['set global max_allowed_packet = 10000000'],
+    }).connect()
+
 Options:
 - user - username to authenticate as.  Required; no default.
 - password - password for the user.  No default.
@@ -81,11 +86,6 @@ Options:
 - connections: how many connections to open to the database.  Default is 1.  Each connection
   can run any query; for stateful command sequences see `getConnection()` and `query()`.
 - reconnect: TODO: reopen the db connection if it becomes unusable
-
-    db = mysqule.createConnection({
-        user: 'andras', password: '****',
-        setup: ['set global max_allowed_packet = 10000000'],
-    }).connect()
 
 ### db = db.connect( whenConnected(err) )
 

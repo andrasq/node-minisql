@@ -13,7 +13,7 @@ var timeit = require('qtimeit');
 var utils = require('../lib/utils');
 
 var mysqule, mysql, mysql2, mariadb;
-var dbMysqule, dbMysql, dbMysql2, dbMariadb;
+var dbMysqule, dbMysqulePar, dbMysql, dbMysql2, dbMariadb;
 
 try { mysql = require('mysql') } catch (e) {}
 try { mysql2 = require('mysql2') } catch (e) {}
@@ -30,6 +30,11 @@ utils.runSteps([
         if (!mysqule) return next();
         console.log("mysqule %s", require('../package.json').version);
         dbMysqule = mysqule.createConnection(creds).connect(next);
+    },
+    function(next) {
+        if (!mysqule) return next();
+        console.log("mysqule %s", require('../package.json').version);
+        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: 4 }, creds, creds)).connect(next);
     },
     function(next) {
         if (!mysql) return next();
@@ -60,8 +65,12 @@ utils.runSteps([
     },
     function(next) {
         // var sql = 'SELECT 1';
-        var sql = 'SELECT 1, "parallel", 3.5';
-        runQueryParallel(sql, 10, next);
+        var sql = 'SELECT 1, "pipelined", 3.5';
+        runQueryPipelined(sql, 10, next);
+    },
+    function(next) {
+        var sql = 'SELECT COUNT(*), "pipelined" FROM information_schema.collations';
+        runQueryPipelined(sql, 10, next);
     },
     function(next) {
         var sql = 'SELECT COUNT(*) FROM information_schema.collations';
@@ -80,6 +89,7 @@ utils.runSteps([
         dbMysql2 && dbMysql2.end();
         dbMariadb && dbMariadb.end();
         dbMysqule && dbMysqule.end(function(err){ console.log("AR: mysqule end", err) });
+        dbMysqulePar && dbMysqulePar.end(function(err){ console.log("AR: mysqulep end", err) });
         next();
     },
 ],
@@ -88,8 +98,8 @@ function(err) {
 });
 
 
-function runQuery(sql, callback) { runQueryParallel(sql, 1, callback ) }
-function runQueryParallel(sql, count, callback) {
+function runQuery(sql, callback) { runQueryPipelined(sql, 1, callback ) }
+function runQueryPipelined(sql, count, callback) {
     console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
     var loopCount = 3;
     timeit.bench.verbose = 1;
@@ -107,6 +117,8 @@ function runQueryParallel(sql, count, callback) {
         if (mariadb) bench['mariadb_2'] = function(cb) { dbMariadb.query(sql).then(cb) };
         if (mysqule) bench['mysqule'] = function(cb) { dbMysqule.query(sql, cb) };
         if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
+        if (mysqule) bench['mysqulePar'] = function(cb) { dbMysqulePar.query(sql, cb) };
+        if (mysqule) bench['mysqulePar_2'] = function(cb) { dbMysqulePar.query(sql, cb) };
         // if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
     } else {
         var runemPromise = function(db, method, query, cb) {
@@ -127,6 +139,8 @@ function runQueryParallel(sql, count, callback) {
         if (mariadb) bench['mariadb_2'] = function(cb) { runemPromise(dbMariadb, 'query', sql, cb) };
         if (mysqule) bench['mysqule'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
         if (mysqule) bench['mysqule_2'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
+        if (mysqule) bench['mysqulePar'] = function(cb) { runem(dbMysqulePar, 'query', sql, cb) };
+        if (mysqule) bench['mysqulePar_2'] = function(cb) { runem(dbMysqulePar, 'query', sql, cb) };
         // if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { runem(dbMysqule, '_select', sql, cb) };
     }
     utils.repeatFor(loopCount, function(done) { timeit.bench(bench, done) }, callback);
