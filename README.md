@@ -78,7 +78,8 @@ Options:
 - database - database to connect to, if any.  No default.
 - setup - array of sql commands to run before using the connection.  Default is [] none.
 - teardown - array of sql commands to run before closing the connection.  Default is [] none.
-- connections: if set to > 1 use a connection pool to run queries.  Default is 1.
+- connections: how many connections to open to the database.  Default is 1.  Each connection
+  can run any query; for stateful command sequences see `getConnection()` and `query()`.
 - reconnect: TODO: reopen the db connection if it becomes unusable
 
     db = mysqule.createConnection({
