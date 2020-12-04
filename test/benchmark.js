@@ -61,35 +61,45 @@ utils.runSteps([
     function(next) {
         // var sql = 'SELECT 1';
         var sql = 'SELECT 1, "series", 3.5';
-        runQuery(sql, next);
+        runQuery(sql, null, next);
     },
+    /**
+    function(next) {
+        // var sql = 'SELECT 1';
+        var sql = 'SELECT ?, ?, ?';
+        runQuery(sql, [1, "series", 3.5], next);
+    },
+    **/
     function(next) {
         // var sql = 'SELECT 1';
         var sql = 'SELECT 1, "pipelined", 3.5';
-        runQueryPipelined(sql, 10, next);
+        runQueryPipelined(sql, 10, null, next);
     },
     function(next) {
         var sql = 'SELECT COUNT(*), "pipelined" FROM information_schema.collations';
-        runQueryPipelined(sql, 10, next);
+        runQueryPipelined(sql, 10, null, next);
     },
+
+    /**
     function(next) {
         var sql = 'SELECT COUNT(*) FROM information_schema.collations';
-        runQuery(sql, next);
+        runQuery(sql, null, next);
     },
     function(next) {
         var sql = 'SELECT * FROM information_schema.collations LIMIT 100';
-        runQuery(sql, next);
+        runQuery(sql, null, next);
     },
     function(next) {
         var sql = "SELECT '" + str200k + "'";
-        runQuery(sql, next);
+        runQuery(sql, null, next);
     },
+    **/
     function(next) {
         dbMysql && dbMysql.end();
         dbMysql2 && dbMysql2.end();
         dbMariadb && dbMariadb.end();
         dbMysqule && dbMysqule.end(function(err){ console.log("AR: mysqule end", err) });
-        dbMysqulePar && dbMysqulePar.end(function(err){ console.log("AR: mysqulep end", err) });
+        dbMysqulePar && dbMysqulePar.end(function(err){ console.log("AR: mysqulePar end", err) });
         next();
     },
 ],
@@ -98,8 +108,8 @@ function(err) {
 });
 
 
-function runQuery(sql, callback) { runQueryPipelined(sql, 1, callback ) }
-function runQueryPipelined(sql, count, callback) {
+function runQuery( sql, params, callback ) { runQueryPipelined(sql, 1, params, callback ) }
+function runQueryPipelined(sql, count, params, callback) {
     console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
     var loopCount = 3;
     timeit.bench.verbose = 1;
@@ -111,15 +121,17 @@ function runQueryPipelined(sql, count, callback) {
     var bench = {};
     if (count <= 1) {
         if (mysql) bench['mysql'] = function(cb) { dbMysql.query(sql, cb) };
-        if (mysql) bench['mysql_2'] = function(cb) { dbMysql.query(sql, cb) };
+        if (mysql) bench['mysql_2'] = function(cb) { dbMysql.query(sql, params, cb) };
         if (mysql2) bench['mysql2'] = function(cb) { dbMysql2.query(sql, cb) };
-        if (mysql2) bench['mysql2_2'] = function(cb) { dbMysql2.query(sql, cb) };
+        if (mysql2) bench['mysql2_2'] = function(cb) { dbMysql2.query(sql, params, cb) };
+        if (sql.indexOf('?') < 0) {
         if (mariadb) bench['mariadb'] = function(cb) { dbMariadb.query(sql).then(cb) };
         if (mariadb) bench['mariadb_2'] = function(cb) { dbMariadb.query(sql).then(cb) };
+        }
         if (mysqule) bench['mysqule'] = function(cb) { dbMysqule.query(sql, cb) };
-        if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, cb) };
+        if (mysqule) bench['mysqule_2'] = function(cb) { dbMysqule.query(sql, params, cb) };
         if (mysqule) bench['mysqulePar'] = function(cb) { dbMysqulePar.query(sql, cb) };
-        if (mysqule) bench['mysqulePar_2'] = function(cb) { dbMysqulePar.query(sql, cb) };
+        if (mysqule) bench['mysqulePar_2'] = function(cb) { dbMysqulePar.query(sql, params, cb) };
         // if (mysqule && dbMysqule._select) bench['mysqule_select'] = function(cb) { dbMysqule._select(sql, cb) };
     } else {
         var runemPromise = function(db, method, query, cb) {
@@ -136,8 +148,10 @@ function runQueryPipelined(sql, count, callback) {
         if (mysql) bench['mysql_2'] = function(cb) { runem(dbMysql, 'query', sql, cb) };
         if (mysql2) bench['mysql2'] = function(cb) { runem(dbMysql2, 'query', sql, cb) };
         if (mysql2) bench['mysql2_2'] = function(cb) { runem(dbMysql2, 'query', sql, cb) };
+        if (sql.indexOf('?') < 0) {
         if (mariadb) bench['mariadb'] = function(cb) { runemPromise(dbMariadb, 'query', sql, cb) };
         if (mariadb) bench['mariadb_2'] = function(cb) { runemPromise(dbMariadb, 'query', sql, cb) };
+        }
         if (mysqule) bench['mysqule'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
         if (mysqule) bench['mysqule_2'] = function(cb) { runem(dbMysqule, 'query', sql, cb) };
         if (mysqule) bench['mysqulePar'] = function(cb) { runem(dbMysqulePar, 'query', sql, cb) };
