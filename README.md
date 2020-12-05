@@ -4,7 +4,7 @@ mysqule
 
 Very small barebones mysql database driver.  The goal was a no-frills, low overhed interface to
 the database command line.  The current version 0.5.0 is 800 lines of javascript, 1/10th the
-size of the traditional packages.  Tested to work with nodejs v0.8 through v15.3.
+size of the traditional packages.  Tested to work with nodejs v0.7 through v15.3.
 
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
@@ -206,6 +206,7 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.8.4 - make packeteer more parametric
 - 0.8.3 - faster connection selection, improved code layout
 - 0.8.2 - fix decodeBytesTo dst, fix integration test db setup, cleanups
 - 0.8.0 - db now either a connection or a connection pool, setup/teardown commands,
