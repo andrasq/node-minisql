@@ -55,7 +55,8 @@ describe('minisql', function() {
             chunker.write(fromBuf([1, 0]))
             chunker.write(fromBuf([]))
             chunker.write(fromBuf([0]))
-            assert.equal(chunker.bufs.length, 1)
+            assert.equal(chunker.bufs.length, 3)
+            // collapses chunks as soon as 4 bytes reached, pushes normally from then on
             chunker.write(fromBuf([4, 5]))
             assert.equal(chunker.bufs.length, 1)
             chunker.write(fromBuf([6, 7]))

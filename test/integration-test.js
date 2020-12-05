@@ -130,6 +130,7 @@ describe('integration tests', function() {
         function sendBytes(db, str, cb) {
             db.query('SELECT "' + str + '"', function(err, rows) {
                 assert.ifError(err)
+                assert.equal(rows[0][0].length, str.length)
                 assert.equal(rows[0][0], str)
                 cb()
             })
