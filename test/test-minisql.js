@@ -23,11 +23,11 @@ var noop = function(){}
 var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user', password: 'password' }
 
 describe('minisql', function() {
-    var db, packman, packeteer, socket, connectStub
+    var db, packman, chunker, socket, connectStub
     beforeEach(function(done) {
         db = minisql.createConnection(mockCreds)
         packman = db.packman
-        packeteer = packman.packeteer
+        chunker = packman.chunker
         socket = new events.EventEmitter()
         socket.write = noop
         socket.setNoDelay = noop
@@ -45,23 +45,23 @@ describe('minisql', function() {
 
     describe('Packeteer', function() {
         it('tallies total length', function(done) {
-            packeteer.writeChunk(fromBuf("abc"))
-            assert.equal(packeteer.nbytes, 3)
-            packeteer.writeChunk(fromBuf("defghi"))
-            assert.equal(packeteer.nbytes, 9)
+            chunker.writeChunk(fromBuf("abc"))
+            assert.equal(chunker.nbytes, 3)
+            chunker.writeChunk(fromBuf("defghi"))
+            assert.equal(chunker.nbytes, 9)
             done()
         })
         it('grows first packet to 4', function(done) {
-            packeteer.writeChunk(fromBuf([1, 0]))
-            packeteer.writeChunk(fromBuf([]))
-            packeteer.writeChunk(fromBuf([0]))
-            assert.equal(packeteer.bufs.length, 1)
-            packeteer.writeChunk(fromBuf([4, 5]))
-            assert.equal(packeteer.bufs.length, 1)
-            packeteer.writeChunk(fromBuf([6, 7]))
-            assert.equal(packeteer.bufs.length, 2)
-            assert.deepEqual(packeteer.bufs[0], fromBuf([1, 0, 0, 4, 5]))
-            assert.deepEqual(packeteer.bufs[1], fromBuf([6, 7]))
+            chunker.writeChunk(fromBuf([1, 0]))
+            chunker.writeChunk(fromBuf([]))
+            chunker.writeChunk(fromBuf([0]))
+            assert.equal(chunker.bufs.length, 1)
+            chunker.writeChunk(fromBuf([4, 5]))
+            assert.equal(chunker.bufs.length, 1)
+            chunker.writeChunk(fromBuf([6, 7]))
+            assert.equal(chunker.bufs.length, 2)
+            assert.deepEqual(chunker.bufs[0], fromBuf([1, 0, 0, 4, 5]))
+            assert.deepEqual(chunker.bufs[1], fromBuf([6, 7]))
             done()
         })
     })
