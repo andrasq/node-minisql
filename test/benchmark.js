@@ -34,7 +34,7 @@ utils.runSteps([
     function(next) {
         if (!mysqule) return next();
         console.log("mysqule %s", require('../package.json').version);
-        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: 6 }, creds, creds)).connect(next);
+        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: 3 }, creds, creds)).connect(next);
     },
     function(next) {
         if (!mysql) return next();
