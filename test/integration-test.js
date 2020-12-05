@@ -253,14 +253,14 @@ describe('integration tests', function() {
                 done();
             })
         })
-        it('can send 2^16-1 bytes', function(done) {
+        it('can send 2^24-1 bytes', function(done) {
             // 'SELECT ""' is 9 bytes, account for them
             sendBytes(db, new Array((1 << 24) - 1 + 1 - 9).join('x'), done)
         })
-        it('can send 2^16+0 bytes', function(done) {
+        it('can send 2^24+0 bytes', function(done) {
             sendBytes(db, new Array((1 << 24) + 0 + 1 - 9).join('x'), done)
         })
-        it('can send 2^16+1 bytes', function(done) {
+        it('can send 2^24+1 bytes', function(done) {
             sendBytes(db, new Array((1 << 24) + 1 + 1 - 9).join('x'), done)
         })
         it('can send and receive large commands spanning 2 packets', function(done) {
