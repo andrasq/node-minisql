@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "main": "lib/minisql",
   "files": ["README.md", "lib", "test"],
+  "engines": { "node": ">= 0.7" },
 
   "author": "andrasq",
   "readme": "see README.md in the repo",
