@@ -192,6 +192,8 @@ Observations
 - connection pools can boost throughput when the query load is on the database, not nodejs.
   For simple queries nodejs is the bottleneck (115 -> 123k/s), but for longer duration queries multiple connections
   can greatly increase throughput (6 conns 6k -> 24k/sec)
+- speed is primarily affected packetization and string conversion, where paying attention to the critical path makes
+  a difference
 
 
 Ideas and Todo
