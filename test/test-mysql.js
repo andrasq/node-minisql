@@ -9,15 +9,21 @@ var assert = require('assert')
 var utils = require('../lib/utils')
 var my = require('../lib/mysql')
 
-// EOF
-var eofPacket = utils.fromBuf('05 00 00 05 fe 00 00 02 00'.replace(/ /g, ''), 'hex')
-// 1001 columns
-var textResultsetPacket = utils.fromBuf('05 00 00 02 fc e9 03'.replace(/ /g, ''), 'hex')
-// row with "ABC", 23.5
-var resultRowPacket3 = utils.fromBuf('09 00 00 02 03 41 42 43 04 32 33 2e 35'.replace(/ /g, ''), 'hex')
-// Error packet of "No database selected", sql state 42000, error_code 1046
-var errorPacket = utils.fromBuf(
-    '1d 00 00 4d ff 16 04 23 33 44 30 30 30 4e 6f 20 64 61 74 61 62 61 73 65 20 73 65 6c 65 63 74 65 64'.replace(/ /g, ''), 'hex')
+var handshakePacket = utils.fromBuf(            // initial handshake from server
+    ('53 00 00 00 0a 35 2e 36 2e 33 30 2d 31 7e 62 70 6f 38 2b 31' +
+    '00 92 62 00 00 7a 75 5e 58 7d 2c 62 29 00 ff f7 08 02 00 7f' +
+    '80 15 00 00 00 00 00 00 00 00 00 00 45 5d 29 4e 2f 3d 27 48' +
+    '75 36 49 50 00 6d 79 73 71 6c 5f 6e 61 74 69 76 65 5f 70 61' +
+    '73 73 77 6f 72 64 00').replace(/ /g, ''), 'hex')
+var eofPacket = utils.fromBuf(                  // EOF
+    '05 00 00 05 fe 00 00 02 00'.replace(/ /g, ''), 'hex')
+var textResultsetPacket = utils.fromBuf(        // 1001 columns
+    '05 00 00 02 fc e9 03'.replace(/ /g, ''), 'hex')
+var resultRowPacket3 = utils.fromBuf(           // row with "ABC", 23.5
+    '09 00 00 02 03 41 42 43 04 32 33 2e 35'.replace(/ /g, ''), 'hex')
+var errorPacket = utils.fromBuf(                // Error packet of "No database selected", error_code 1046
+    ('1d 00 00 4d ff 16 04 23 33 44 30 30 30 4e 6f 20 64 61 74 61' +
+    '62 61 73 65 20 73 65 6c 65 63 74 65 64').replace(/ /g, ''), 'hex')
 
 describe('mysql', function() {
     describe('OkPacket', function() {
@@ -77,6 +83,16 @@ describe('mysql', function() {
             assert.equal(packet._seqId, 2)
             assert.equal(packet._type, 'RESULTS')
             assert.equal(packet.column_count, 1001)
+            done()
+        })
+    })
+    describe('handshake packet', function() {
+        it('is decoded by decodeHandshakePacket', function(done) {
+            var packet = my.decodeHandshakePacket(handshakePacket)
+            assert.equal(packet.protocol_version, 10)
+            assert.equal(packet.auth_plugin_name, 'mysql_native_password')
+
+            assert.deepEqual(my.decodeResponsePacket(handshakePacket), packet)
             done()
         })
     })
