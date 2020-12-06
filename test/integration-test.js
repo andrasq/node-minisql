@@ -100,6 +100,17 @@ describe('integration tests', function() {
                         }
                     })
                 }
+                db.runQueries(
+                    ['create temporary table _junk (x int)', 'insert into _junk values (1), (2)'],
+                    function(err, info) {
+                        assert.ifError()
+                        info.conn.query('select * from _junk', function(err, rows) {
+                            assert.ifError()
+                            assert.deepEqual(rows, [[1], [2]])
+                            done()
+                        })
+                    }
+                )
             })
         })
     })
