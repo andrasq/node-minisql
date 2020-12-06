@@ -318,12 +318,13 @@ describe('minisql', function() {
 
         describe('_readResult', function() {
             it('queues reader if busy reading', function(done) {
-                db.isReading = true
+                var conn = db.getConnection()
+                conn.isReading = true
                 var cb = function() {}
-                assert.equal(db.readWaitlist.length, 0) // empty before
-                db._readResult('select something', 1, 1234.5, cb)
-                assert.equal(db.readWaitlist.length, 1) // not empty after
-                assert.deepEqual(db.readWaitlist[0], ['select something', 1, 1234.5, cb])
+                assert.equal(conn.readWaitlist.size() , 0) // empty before
+                conn._readResult('select something', 1, 1234.5, cb)
+                assert.equal(conn.readWaitlist.size(), 1) // not empty after
+                assert.deepEqual(conn.readWaitlist.peekAt(0), ['select something', 1, 1234.5, cb])
                 done()
             })
             it('serializes calls', function(done) {
@@ -347,12 +348,12 @@ describe('minisql', function() {
             it('decodes rows fast', function(done) {
                 var rowbuf = utils.fromBuf([12, 0, 0, 1, 1, 0x31, 3, 0x32, 0x2e, 0x35, 5, 0x68, 0x65, 0x6c, 0x6c, 0x6f])
                 var decoders = [my.bbytes.getNumberV, my.bbytes.getNumberV, my.bbytes.getStringV]
-                console.time('decode 10k rows')
+                console.time('decode 100k rows')
                 for (var i = 0; i < 100000; i++) {
                     var row = my.decodeRowValues(3, rowbuf, decoders)
                     // var hash = utils.pairTo({}, ['a', 'b', 'c'], row)
                 }
-                console.timeEnd('decode 10k rows')
+                console.timeEnd('decode 100k rows')
                 done()
                 // array: 10k in 8ms, 100k in 28ms, 1m in 204ms; hash: 10k in 12ms, 100k in 35ms, 1m in 270ms
             })
