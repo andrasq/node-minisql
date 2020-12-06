@@ -31,7 +31,7 @@ describe('minisql', function() {
         socket = new events.EventEmitter()
         socket.write = noop
         socket.setNoDelay = noop
-        connectStub = qmock.stubOnce(net, 'connect', function() {
+        connectStub = qmock.stub(net, 'connect', function() {
             setImmediate(function() { socket.emit('connect') })
             return socket
         })
@@ -41,6 +41,41 @@ describe('minisql', function() {
     afterEach(function(done) {
         connectStub.restore()
         done()
+    })
+
+    describe('Db', function() {
+        describe('constructor', function() {
+            it('options are optional', function(done) {
+                var db = minisql.createConnection()
+                assert.ok(db)
+                done()
+            })
+            it('has expected db methods', function(done) {
+                var db = minisql.createConnection()
+                assert.equal(typeof db.connect, 'function')
+                assert.equal(typeof db.getConnection, 'function')
+                assert.equal(typeof db.query, 'function')
+                assert.equal(typeof db.runQueries, 'function')
+                assert.equal(typeof db.end, 'function')
+                done()
+            })
+            it.skip('runs setup and teardown commands', function(done) {
+                var db = minisql.createConnection(
+                    { user: 'mock', setup: ['select 1'], teardown: ['select 2'], connections: 2 })
+                var conn = db.getConnection()
+                var spy = qmock.spy(conn, 'query')
+                db.connect(function(err) {
+                    assert.ifError(err)
+                    assert.equal(spy.callCount, 1)
+                    assert.deepEqual(spy.args[0][0], 'select 1')
+                    db.end(function() {
+                        assert.equal(spy.callCount, 2)
+                        assert.deepEqual(spy.args[1][0], 'select 2')
+                        done()
+                    })
+                })
+            })
+        })
     })
 
     describe('Packeteer', function() {
