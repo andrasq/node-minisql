@@ -208,6 +208,7 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.8.7 - new versions of legacy chunker, packeter
 - 0.8.5 - default to the legacy packeter
 - 0.8.4 - make packeteer content-agnostic, unify chunker and packeter
 - 0.8.3 - faster connection selection, improved code layout
