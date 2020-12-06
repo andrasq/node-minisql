@@ -80,6 +80,31 @@ describe('integration tests', function() {
                 })
             })
         })
+        it('connects to and can use multiple connections', function(done) {
+            var localCreds = { user: creds.user, password: creds.password, connections: 2 }
+            var db = minisql.createConnection(localCreds).connect(function(err) {
+                assert.ifError(err)
+                var ndone = 0, connIds = new Array()
+                for (var i = 0; i < 20; i++) {
+                    var conn = db.query('select 1 as x, now() as tm, "two" as y2', function(err, rows) {
+                        ndone += 1
+                        assert.ifError(err)
+                        if (connIds.indexOf(conn.id) < 0) connIds.push(conn.id)
+                        var info = conn.queryInfo()
+                        assert.ok(info.duration_ms > 0)
+                        assert.deepEqual(info.columnNames, ['x', 'tm', 'y2'])
+                        assert.strictEqual(rows[0][0], 1)
+                        assert.strictEqual(rows[0][2], 'two')
+                        if (ndone === 20) {
+                            var info = db.queryInfo()
+                            assert.deepEqual(info, { duration_ms: 0, columnNames: [] })
+                            db.end()
+                            done()
+                        }
+                    })
+                }
+            })
+        })
     })
 
     describe('ping', function() {
