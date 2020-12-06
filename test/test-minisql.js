@@ -164,35 +164,6 @@ describe('minisql', function() {
             assert.equal(packman.chunker.bufs.length, 0)
             done()
         })
-        it.skip('_getResponse combines large packets', function(done) {
-// FIXME: legacy _getResponse needs the chunks to be combined into mysql packets
-            var packet = allocBuf(0xffffff + 100)
-            var header1 = fromBuf([255, 255, 255, 3])
-            var header2 = fromBuf([100, 0, 0, 4])
-            packman._socket.emit('data', header1)
-            packman._socket.emit('data', packet.slice(0, 0xffffff))
-            packman._socket.emit('data', header2)
-            packman._socket.emit('data', packet.slice(0xffffff))
-            var buf = packman._getResponse()
-            assert.equal(buf[3], 3)
-            assert.equal(buf.length, 4 + 0xffffff + 100)
-            done()
-        })
-        it.skip('_getResponse verifies consecutive packet sequence ids', function(done) {
-            var packet = allocBuf(0xffffff + 100)
-            var header1 = fromBuf([255, 255, 255, 3])
-            var header2 = fromBuf([100, 0, 0, 5])
-            packman._socket.emit('data', header1)
-            packman._socket.emit('data', packet.slice(0, 0xffffff))
-            packman._socket.emit('data', header2)
-            packman._socket.emit('data', packet.slice(0xffffff))
-            var buf = packman._getResponse()
-            assert.equal(buf[3], 0xff) // error packet
-            // extract info string from the error packet
-            var message = buf.toString('utf8', 11)
-            assert.ok(/out of order/.test(message))
-            done()
-        })
         it('sendPacket writes packet with given sequence id', function(done) {
             var written = []
             socket.write = function(chunk) { written.push(chunk) }
