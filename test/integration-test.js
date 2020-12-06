@@ -86,19 +86,15 @@ describe('integration tests', function() {
                 assert.ifError(err)
                 var ndone = 0, connIds = new Array()
                 for (var i = 0; i < 20; i++) {
-                    var conn = db.query('select 1 as x, now() as tm, "two" as y2', function(err, rows) {
+                    db.query('select 1 as x, now() as tm, "two" as y2', function(err, rows, info) {
                         ndone += 1
                         assert.ifError(err)
-                        if (connIds.indexOf(conn.id) < 0) connIds.push(conn.id)
-                        var info = conn.queryInfo()
+                        if (connIds.indexOf(info.conn.id) < 0) connIds.push(info.conn.id)
                         assert.ok(info.duration_ms > 0)
                         assert.deepEqual(info.columnNames, ['x', 'tm', 'y2'])
                         assert.strictEqual(rows[0][0], 1)
                         assert.strictEqual(rows[0][2], 'two')
-                        assert.equal(conn.getConnection(), conn)
                         if (ndone === 20) {
-                            var info = db.queryInfo()
-                            assert.deepEqual(info, { duration_ms: 0, columnNames: [] })
                             db.end()
                             done()
                         }
@@ -197,9 +193,8 @@ describe('integration tests', function() {
             })
         })
         it('returns column info', function(done) {
-            db.query('SELECT * FROM information_schema.collations WHERE id = 8', function(err, rows) {
+            db.query('SELECT * FROM information_schema.collations WHERE id = 8', function(err, rows, info) {
                 assert.ifError(err)
-                var info = db.queryInfo()
                 // assert.deepEqual(info.columns[2], { col: 2, name: 'ID', type: 8, table: 'collations' })
                 assert.ok(Array.isArray(info.columnNames))
                 assert.ok(info.columnNames.indexOf('ID') >= 0)
@@ -250,8 +245,7 @@ describe('integration tests', function() {
                 function(next) {
                     db.query('SELECT * FROM _junk WHERE x % 2 = 1', next)
                 },
-                function(next, rows) {
-                    var info = db.queryInfo()
+                function(next, rows, info) {
                     assert.equal(rows.length, 2)
                     assert.deepEqual(info.columnNames, ['x', 'a', 'f', 'b'])
                     assert.strictEqual(rows[0][0], 1)
@@ -295,9 +289,8 @@ describe('integration tests', function() {
             var str20m = new Array(17001).join(str1k).slice()
             var sql = 'SELECT "' + str20m + '" AS bulk';        // 10 bytes for the SELECT query + 17m
             var t1 = Date.now()
-            db.query(sql, function(err, rows) {
+            db.query(sql, function(err, rows, info) {
                 var t2 = Date.now()
-                var info = db.queryInfo()
                 console.log("AR: 17m in %d (%d ms)", t2 - t1, info && info.duration_ms, info);
                 assert.ifError(err)
                 assert.equal(rows.length, 1)
@@ -312,8 +305,7 @@ describe('integration tests', function() {
             var str1k = new Array(1001).join('x').slice()
             var str40m = new Array(35001).join(str1k).slice()
             var sql = 'SELECT "' + str40m + '"';
-            db.query(sql, function(err, rows) {
-                var info = db.queryInfo()
+            db.query(sql, function(err, rows, info) {
                 console.log("AR: 34m in %d ms", info && info.duration_ms);
                 assert.ifError(err)
                 assert.equal(rows.length, 1)
@@ -398,11 +390,10 @@ describe('integration tests', function() {
                 var largeString = new Array(1e6 + 1).join('x')
                 var db = minisql.createConnection(creds).connect(function(err) {
                     // ignore errors until hrtime is restored
-                    var conn = db.query('SELECT 1, 2.5, ? AS bulk', [largeString], function(err, rows) {
+                    db.query('SELECT 1, 2.5, ? AS bulk', [largeString], function(err, rows, info) {
                         process.hrtime = hrtime
                         assert.ifError(err)
                         assert.deepEqual(rows, [[1, 2.5, largeString]])
-                        var info = conn.queryInfo()
                         assert.equal(typeof info.duration_ms, 'number')
                         assert.ok(info.duration_ms > 2)
                         // double-check that it actually disabled hrtime: should have only ms precision

@@ -119,30 +119,23 @@ Calls the `whenConnected` notification when the connection is ready to use.
 The `setup` sql commands are run on every newly opened connection.  Any `setup` step error
 is passed `whenConnected` and stops running any more setup steps.
 
-### conn = db.query( sql, [params,] callback(err, result) )
+### conn = db.query( sql, [params,] callback(err, results, queryInfo) )
 
 Run the SQL query on the server, and return its response.  The response may be a an array of
 rows or a status.  The params array, if provided, will be interpolated into the query string
 with one parameter replacing each `?` in the query.  Numbers, blobs and arrays are recognized,
 everything else is converted to string.
 
-Returns the connection used for the query, for stateful command sequences and/or status
-gathering with `queryInfo`.
-
 Errors passed to the callback will have the property `query` set to (an abridged version) of the
 failed query and properties `errorCode` and `errorMessage` copied from the database server error
 response.
 
-### conn.queryInfo( )
+`queryInfo` contains information about the query, including the `columnNames` and `duration_ms`,
+the elapsed time in milliseconds.
 
-To obtain information about the query, including the column names, use `conn.queryInfo()`.  It
-returns elapsed milliseconds `info.duration_ms`, and the column names in `info.columnNames`.
-If queryInfo is called on db, it will alays return no duration `0` and no column names `[]`.
-
-    conn = db.query('SELECT * FROM test LIMIT ?', [10], function(err, rows) {
+    conn = db.query('SELECT * FROM test LIMIT ?', [10], function(err, rows, info) {
         // => up to 10 rows, each row an array of values
-        conn.queryInfo()
-        // => { duration_ms: 3.52, columnNames: ['a', 'b'] }
+        // => info = { duration_ms: 3.52, columnNames: ['a', 'b'] }
     })
 
 ### conn = db.getConnection( )
@@ -212,7 +205,8 @@ Ideas and Todo
 Changelog
 ---------
 
-- 0.8.10 - queue waiting readers on a quicker list
+- 0.9.0 - return query info to query and deprecate qureyInfo, expose runQueries
+- 0.8.9 - queue waiting readers on a quicker list
 - 0.8.8 - destroy closed/errored connections, error out queries (todo: reconnect)
 - 0.8.7 - new versions of legacy chunker, packeter
 - 0.8.5 - default to the legacy packeter
