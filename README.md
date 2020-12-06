@@ -10,11 +10,11 @@ Still somewhat experimental, but reads and writes the database.  _Work in progre
 
 * low latency (< 0.2 ms response)
 * pipelined queries (115k / sec)
+* connection pooling (145k / sec)
 * parameter interpolation
 * connection setup / teardown steps
 * nodejs v0.8 - v15
-* automatic setup / teardown commands
-* automatic connection pooling
+* configurable setup / teardown commands
 
 
 Overview
@@ -26,7 +26,7 @@ timestamps are passed as strings.
 
 Restrictions:
 - requires Protocol::41 for authentication
-- returns an array of value arrays, not an array of objects
+- returns arrays of values, not objects
 - longlongs, decimals returned as numbers (beware the loss of precision)
 - dates, timestamps, enums returned as strings
 - assumes max_allowed_packet is 16MB
@@ -104,8 +104,8 @@ Options:
 - host - hostname to connect to.  The default is localhost at `0.0.0.0`.
 - port - port to connect to.  Default is `3306`.
 - database - database to connect to, if any.  No default.
-- setup - array of sql commands to run before using the connection.  Default is [] none.
-- teardown - array of sql commands to run before closing the connection.  Default is [] none.
+- setup - array of sql commands to run before using the connection.  Default is `[]` none.
+- teardown - array of sql commands to run before closing the connection.  Default is `[]` none.
 - connections: how many connections to open to the database.  Default is 1.  Each connection
   can run any query; for stateful command sequences see `getConnection()` and `query()`.
 - reconnect: TODO: reopen the db connection if it becomes unusable
@@ -201,7 +201,7 @@ Ideas and Todo
 
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 - automatic reconnect (on timeout and error)
-- abstract Packman packet boundary detection to make more reusable (ie, plug in my.packetLength and my.packetType (Header))
+- reset connection on packet errors
 - postgresql back-end plugin (nb: is big-endian)
 
 
