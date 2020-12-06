@@ -95,6 +95,7 @@ describe('integration tests', function() {
                         assert.deepEqual(info.columnNames, ['x', 'tm', 'y2'])
                         assert.strictEqual(rows[0][0], 1)
                         assert.strictEqual(rows[0][2], 'two')
+                        assert.equal(conn.getConnection(), conn)
                         if (ndone === 20) {
                             var info = db.queryInfo()
                             assert.deepEqual(info, { duration_ms: 0, columnNames: [] })
