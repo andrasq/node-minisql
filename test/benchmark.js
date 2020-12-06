@@ -61,11 +61,17 @@ utils.runSteps([
     },
     function(next) {
         utils.runSteps([
-            function(next) { dbMysqule.query('create database if not exists test', next) },
-            function(next) { dbMysqule.query('use test', next) },
-            function(next) { dbMysqule.query('create table if not exists _collations_copy like information_schema.collations', next) },
-            function(next) { dbMysqule.query('delete from _collations_copy', next) },
-            function(next) { dbMysqule.query('insert into _collations_copy select * from information_schema.collations', next) },
+            function(next) {
+                dbMysqule.runQueries([
+                    'create database if not exists test',
+                    'use test',
+                    'create table if not exists _collations_copy like information_schema.collations',
+                    'delete from _collations_copy',
+                    'insert into _collations_copy select * from information_schema.collations',
+                ], function(err) {
+                    next()
+                })
+            }
         ], next)
     },
     function(next) {
