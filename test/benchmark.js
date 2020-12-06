@@ -25,6 +25,7 @@ var creds = { user: process.env.USER, password: process.env.DBPASSWORD, database
 console.log("AR: Starting.");
 var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
+var parallelCount = 10;
 utils.runSteps([
     function(next) {
         if (!mysqule) return next();
@@ -59,6 +60,15 @@ utils.runSteps([
         })
     },
     function(next) {
+        utils.runSteps([
+            function(next) { dbMysqule.query('create database if not exists test', next) },
+            function(next) { dbMysqule.query('use test', next) },
+            function(next) { dbMysqule.query('create table if not exists _collations_copy like information_schema.collations', next) },
+            function(next) { dbMysqule.query('delete from _collations_copy', next) },
+            function(next) { dbMysqule.query('insert into _collations_copy select * from information_schema.collations', next) },
+        ], next)
+    },
+    function(next) {
         // var sql = 'SELECT 1';
         var sql = 'SELECT 1, "series", 3.5';
         runQuery(sql, null, next);
@@ -73,11 +83,11 @@ utils.runSteps([
     function(next) {
         // var sql = 'SELECT 1';
         var sql = 'SELECT 1, "pipelined", 3.5';
-        runQueryPipelined(sql, 10, null, next);
+        runQueryPipelined(sql, parallelCount, null, next);
     },
     function(next) {
-        var sql = 'SELECT COUNT(*), "pipelined" FROM information_schema.collations';
-        runQueryPipelined(sql, 10, null, next);
+        var sql = 'SELECT COUNT(*), "pipelined", 3.5 FROM _collations_copy';
+        runQueryPipelined(sql, parallelCount, null, next);
     },
 
     /**
