@@ -203,11 +203,14 @@ Ideas and Todo
 - automatic reconnect (on timeout and error)
 - reset connection on packet errors
 - postgresql back-end plugin (nb: is big-endian)
+- canonicalize various status responses from non-query calls eg insert, update, load
+- add support for load data local infile
 
 
 Changelog
 ---------
 
+- 0.8.8 - destroy closed/errored connections, error out queries (todo: reconnect)
 - 0.8.7 - new versions of legacy chunker, packeter
 - 0.8.5 - default to the legacy packeter
 - 0.8.4 - make packeteer content-agnostic, unify chunker and packeter
