@@ -12,9 +12,8 @@ Still somewhat experimental, but reads and writes the database.  _Work in progre
 * pipelined queries (115k / sec)
 * connection pooling (145k / sec)
 * parameter interpolation
-* connection setup / teardown steps
+* configurable connection setup / teardown
 * nodejs v0.8 - v15
-* configurable setup / teardown commands
 
 
 Overview
