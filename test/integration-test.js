@@ -291,6 +291,7 @@ describe('integration tests', function() {
             var t1 = Date.now()
             db.query(sql, function(err, rows, info) {
                 var t2 = Date.now()
+                info.conn = null
                 console.log("AR: 17m in %d (%d ms)", t2 - t1, info && info.duration_ms, info);
                 assert.ifError(err)
                 assert.equal(rows.length, 1)
