@@ -201,11 +201,8 @@ Ideas and Todo
 - improve ci-test coverage (currently ~95% if pointed at a real db, 40% without)
 - automatic reconnect (on timeout and error)
 - reset connection on packet errors
-- postgresql back-end plugin (nb: is big-endian)
 - canonicalize various status responses from non-query calls eg insert, update, load
 - add support for load data local infile
-- find a way to use the first available connection and still have a way to return query info
-  (ie, do not return conn from query)
 
 
 Changelog
