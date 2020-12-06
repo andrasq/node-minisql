@@ -138,6 +138,12 @@ the elapsed time in milliseconds.
         // => info = { duration_ms: 3.52, columnNames: ['a', 'b'] }
     })
 
+### db.runQueries( queries, callback(err) )
+
+Run each of the sql statements back to back.  Does not deliver results, but can be
+useful for configuring a connection or setting up test scenarios.  A query error stops
+the chain and is returned to the callback.
+
 ### conn = db.getConnection( )
 
 Obtain a db handle that talks to a single connection.  The returned connection has all the
