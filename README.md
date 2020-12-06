@@ -212,7 +212,7 @@ Ideas and Todo
 Changelog
 ---------
 
-- 0.8.9 - queue waiting readers on a quicker list
+- 0.8.10 - queue waiting readers on a quicker list
 - 0.8.8 - destroy closed/errored connections, error out queries (todo: reconnect)
 - 0.8.7 - new versions of legacy chunker, packeter
 - 0.8.5 - default to the legacy packeter
