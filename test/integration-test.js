@@ -146,7 +146,7 @@ describe('integration tests', function() {
             db.end(function() {
                 db.query('SELECT 1', function(err, res) {
                     assert.ok(err)
-                    assert.ok(/connection closed/.test(err.message))
+                    assert.ok(/connection.*closed/.test(err.message))
                     done()
                 })
             })
