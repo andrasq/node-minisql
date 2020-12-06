@@ -211,6 +211,7 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.9.1 - faster pipelined query read queueing, always return query info
 - 0.9.0 - return query info to query and deprecate qureyInfo, expose runQueries
 - 0.8.9 - queue waiting readers on a quicker list
 - 0.8.8 - destroy closed/errored connections, error out queries (todo: reconnect)
