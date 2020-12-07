@@ -60,20 +60,16 @@ utils.runSteps([
         })
     },
     function(next) {
-        utils.runSteps([
-            function(next) {
-                dbMysqule.runQueries([
-                    'create database if not exists test',
-                    'use test',
-                    'create table if not exists _collations_copy like information_schema.collations',
-                    'delete from _collations_copy',
-                    'insert into _collations_copy select * from information_schema.collations',
-                ], function(err, info) {
-                    console.log("AR: copied collations in %d ms", info.duration_ms)
-                    next()
-                })
-            }
-        ], next)
+        dbMysqule.runQueries([
+            'create database if not exists test',
+            'use test',
+            'create table if not exists _collations_copy like information_schema.collations',
+            'delete from _collations_copy',
+            'insert into _collations_copy select * from information_schema.collations',
+        ], function(err, info) {
+            console.log("AR: copied collations in %d ms", info.duration_ms)
+            next()
+        })
     },
     function(next) {
         // var sql = 'SELECT 1';
