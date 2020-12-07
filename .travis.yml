@@ -11,7 +11,7 @@ env:
 before_install:
   - npm install -g qnit
 after_success:
-  - if [ `node -p 'process.version.slice(0, 3)'` != "v10." ]; then exit; fi
+  - if [ `node -p 'process.version.slice(0, 4)'` != "v10." ]; then exit; fi
   - npm install -g nyc coveralls@3.0.2
   - nyc -r text --reporter lcov npm test && codecov
   - nyc report -r text-lcov | coveralls
