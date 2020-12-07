@@ -59,7 +59,7 @@ Single connection on verion 0.7.0, `node-v14.9.0 ./test/benchmark.js`:
     mariadb     105,797 ops/sec   3556 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     mysqule     115,937 ops/sec   3897 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-Multi-connection `{ connections: 6 }` on version 0.8.0, `node-v14.9.0`:
+Multi-connection `{ connections: 6 }` on version 0.8.0, `node-v14.15.1`:
 
     mysqule 0.8.0
     mysqule 0.8.0
