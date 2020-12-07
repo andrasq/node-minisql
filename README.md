@@ -123,7 +123,7 @@ is passed `whenConnected` and stops running any more setup steps.
 Run the SQL query on the server, and return its response.  The response may be a an array of
 rows or a status.  The params array, if provided, will be interpolated into the query string
 with one parameter replacing each `?` in the query.  Numbers, blobs and arrays are recognized,
-everything else is converted to string.
+everything else is converted to a single-quoted, escaped string.
 
 Errors passed to the callback will have the property `query` set to (an abridged version) of the
 failed query and properties `errorCode` and `errorMessage` copied from the database server error
