@@ -148,11 +148,12 @@ the chain and is returned to the callback.
 Obtain a db handle that talks to a single connection.  The returned connection has all the
 same methods of `db` but always uses the same connection.
 
-### db.end( [callback(err)] )
+### db.end( [callback(errors)] )
 
 Run the `teardown` steps on each connection and close them.  Any teardown steps errors are
-passed to the callback, if provided.  The teardown steps stop running on error.
-
+passed to the callback, if provided.  The teardown steps stop running on error, but all sessions
+are closed.  Calls back with `null` if there no errors, else an array with the errors.  Each
+error has a property `conn` set to the id of its connection.
 
 Observations
 ------------
