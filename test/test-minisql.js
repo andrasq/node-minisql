@@ -59,6 +59,15 @@ describe('minisql', function() {
                 assert.equal(typeof db.end, 'function')
                 done()
             })
+            it('returns a connection', function(done) {
+                var db = minisql.createConnection(
+                    { user: 'mock', setup: ['select 1'], teardown: ['select 2'], connections: 2 })
+                var conn = db.getConnection()
+                assert.ok(conn)
+                assert.ok(conn.id >= 1)
+                assert.equal(conn.getConnection(), conn)
+                done()
+            })
             it.skip('runs setup and teardown commands', function(done) {
                 var db = minisql.createConnection(
                     { user: 'mock', setup: ['select 1'], teardown: ['select 2'], connections: 2 })
