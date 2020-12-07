@@ -100,12 +100,16 @@ describe('integration tests', function() {
                         }
                     })
                 }
+            })
+        })
+        it('can run queries', function(done) {
+            var localCreds = { user: creds.user, password: creds.password, connections: 2 }
+            var db = minisql.createConnection(localCreds).connect(function(err) {
                 db.runQueries(
-                    ['create temporary table _junk (x int)', 'insert into _junk values (1), (2)'],
+                    ['use test', 'create temporary table _junk (x int)', 'insert into _junk values (1), (2)'],
                     function(err, info) {
-                        assert.ifError()
+                        assert.ifError(err)
                         info.conn.query('select * from _junk', function(err, rows) {
-console.log("AR: test got", err, rows)
                             assert.ifError(err)
                             assert.deepEqual(rows, [[1], [2]])
                             done()
@@ -354,7 +358,7 @@ console.log("AR: test got", err, rows)
             var runQuery = function(x) {
                 db.query('SELECT ?, ?', [x, 'three'], function(err, rows) {
                     ndone += 1
-                    assert.ifError()
+                    assert.ifError(err)
                     assert.deepEqual(rows, [[x, 'three']])
                     if (ndone === 1000) done()
                 })

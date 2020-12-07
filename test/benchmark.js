@@ -129,10 +129,10 @@ function runQuery( sql, params, callback ) { runQueryPipelined(sql, 1, params, c
 function runQueryPipelined(sql, count, params, callback) {
     console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
     var loopCount = 3;
+    timeit.bench.timeGoal = .45;
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
     timeit.bench.bargraphScale = 10;
-    timeit.bench.timeGoal = .45;
     timeit.bench.opsPerTest = (count <= 1) ? 1 : count;
     timeit.bench.showTestInfo = true;
     var bench = {};
