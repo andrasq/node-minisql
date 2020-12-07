@@ -105,7 +105,8 @@ describe('integration tests', function() {
                     function(err, info) {
                         assert.ifError()
                         info.conn.query('select * from _junk', function(err, rows) {
-                            assert.ifError()
+console.log("AR: test got", err, rows)
+                            assert.ifError(err)
                             assert.deepEqual(rows, [[1], [2]])
                             done()
                         })
