@@ -68,7 +68,8 @@ utils.runSteps([
                     'create table if not exists _collations_copy like information_schema.collations',
                     'delete from _collations_copy',
                     'insert into _collations_copy select * from information_schema.collations',
-                ], function(err) {
+                ], function(err, info) {
+                    console.log("AR: copied collations in %d ms", info.duration_ms)
                     next()
                 })
             }
