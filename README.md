@@ -9,11 +9,11 @@ size of the traditional packages.  Tested to work with nodejs v0.7 through v15.3
 Still somewhat experimental, but reads and writes the database.  _Work in progress._
 
 * low latency (< 0.2 ms response)
-* pipelined queries (115k / sec)
+* command pipelining (115k / sec)
 * connection pooling (145k / sec)
 * parameter interpolation
 * configurable connection setup / teardown
-* nodejs v0.8 - v15
+* nodejs v0.7 - v15
 
 
 Overview
@@ -36,7 +36,8 @@ Example
 
     mysqule = require('mysqule')
     creds = { user: process.env.DBUSER, password: process.env.DBPASSWORD,
-              host: 'localhost', port: 3306, database: 'test' }
+              host: 'localhost', port: 3306, database: 'test',
+              connections: 2 }
 
     db = mysqule.createConnection(creds).connect(function(err) {
         db.query('SELECT 1, "two", NOW()', function(err, rows) {
