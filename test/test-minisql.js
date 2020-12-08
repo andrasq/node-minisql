@@ -25,6 +25,7 @@ var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user',
 describe('minisql', function() {
     var db, packman, chunker, socket, connectStub
     beforeEach(function(done) {
+        // FIXME: is testing the Session, not the Db (that manages sessions)
         db = minisql.createConnection(mockCreds)._getRawDb().getConnection()
         packman = db.packman
         chunker = packman.chunker
@@ -240,7 +241,7 @@ describe('minisql', function() {
             it('rejects protocol other than v10', function(done) {
                 var packet = allocBuf(60); fill(packet, 0); packet[3] = 0; packet[4] = 99
                 qmock.stubOnce(db.packman, 'getPacket').yields(null, packet)
-                db.connect(function(err) {
+                db._connect(function(err) {
                     assert.ok(err)
                     assert.ok(/bad.*protocol.*99/.test(err.message))
                     done()
@@ -249,7 +250,7 @@ describe('minisql', function() {
             it('rejects other than the initial 0 sequence id', function(done) {
                 var packet = allocBuf(60); fill(packet, 0); packet[3] = 2; packet[4] = 10
                 qmock.stubOnce(db.packman, 'getPacket').yields(null, packet)
-                db.connect(function(err) {
+                db._connect(function(err) {
                     assert.ok(err)
                     assert.ok(/sequence id 2/.test(err.message))
                     done()
@@ -261,7 +262,7 @@ describe('minisql', function() {
                     1, 0, 0, 0, 10, 0, 4, 4, 4, 4, 48, 48, 48, 48, 48, 48, 48, 48, 0, 255, 255, 33, 2, 2,
                     0xff, 0xff, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 0, 109, 121, 0]))
                   .onCall(1).yields(null, fromBuf([1, 0, 0, 2, 255]))
-                db.connect(function(err) {
+                db._connect(function(err) {
                     assert.ok(err)
                     assert.ok(/not OK/.test(err.message))
                     done()
