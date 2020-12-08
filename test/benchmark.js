@@ -9,6 +9,16 @@
 
 if (!/benchmark/.test(require('path').basename(process.argv[1]))) return
 
+// monitor event loop blockage
+var lastRan = Date.now();
+var totalBlocked = 0;
+var lagPoller = setInterval(
+    function() { var now = Date.now(); totalBlocked += (now - lastRan) - 5; lastRan = now }, 5);
+var lagReporter = setInterval(
+    function() { if (totalBlocked > 10) console.log("event loop blocked %d ms", totalBlocked); totalBlocked = 0 }, 1000);
+if (lagPoller.unref) lagPoller.unref();
+if (lagReporter.unref) lagReporter.unref();
+
 var timeit = require('qtimeit');
 var utils = require('../lib/utils');
 
