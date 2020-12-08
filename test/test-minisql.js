@@ -255,7 +255,7 @@ describe('minisql', function() {
                 qmock.stubOnce(db.packman, 'getPacket').yields(null, packet)
                 db._connect(mockCreds, function(err) {
                     assert.ok(err)
-                    assert.ok(/sequence num 2/.test(err.message))
+                    assert.ok(/sequence id 2/.test(err.message))
                     done()
                 })
             })
@@ -309,7 +309,7 @@ describe('minisql', function() {
                 db._getPacketsEof(null, 3, function(err, packets) {
                     assert.ok(err)
                     assert.ok(err instanceof Error)
-                    assert.ok(/sequence num 2.*expected 4/.test(err.message))
+                    assert.ok(/bad sequence id 2.*expected.*4/.test(err.message))
                     done()
                 })
             })
