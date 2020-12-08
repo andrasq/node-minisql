@@ -130,12 +130,15 @@ Errors passed to the callback will have the property `query` set to (an abridged
 failed query and properties `errorCode` and `errorMessage` copied from the database server error
 response.
 
-`queryInfo` contains information about the query, including the `columnNames` and `duration_ms`,
-the elapsed time in milliseconds.
+`queryInfo` contains information about the query, including the `columnNames`, `duration_ms`
+elapsed time in milliseconds, and `conn` the connection that was used to make the query.
+Some MySQL queries have connection-local side-effects.  Queries that rely on such shared
+state can either get a preassigned connection with `db.getConnection()` or can chain queries
+with `info.conn.query` to restrict them all to the same connection.
 
     conn = db.query('SELECT * FROM test LIMIT ?', [10], function(err, rows, info) {
         // => up to 10 rows, each row an array of values
-        // => info = { duration_ms: 3.52, columnNames: ['a', 'b'] }
+        // => info = { duration_ms: 3.52, columnNames: ['a', 'b'], conn: [Object] }
     })
 
 ### db.runQueries( queries, callback(err) )
@@ -147,7 +150,8 @@ the chain and is returned to the callback.
 ### conn = db.getConnection( )
 
 Obtain a db handle that talks to a single connection.  The returned connection has all the
-same methods of `db` but always uses the same connection.
+same methods of `db` but always uses the same connection.  The management methods `connect`
+and `end` act on the underlying `db` object and not on just the connection.
 
 ### db.end( [callback(errors)] )
 

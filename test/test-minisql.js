@@ -25,7 +25,7 @@ var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user',
 describe('minisql', function() {
     var db, packman, chunker, socket, connectStub
     beforeEach(function(done) {
-        db = minisql.createConnection(mockCreds)
+        db = minisql.createConnection(mockCreds)._getRawDb().getConnection()
         packman = db.packman
         chunker = packman.chunker
         socket = new events.EventEmitter()
