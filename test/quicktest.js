@@ -53,9 +53,9 @@ console.log("AR: auth time (%d ms)", t1 - t0);
             t1 = utils.microtime();
             db.query(sql, next);
         },
-        function(next, rows) {
+        function(next, rows, info) {
             t2 = utils.microtime();
-            var info = db.queryInfo && db.queryInfo() || { duration_ms: 'NA' }
+            info = info || { duration_ms: 'NA' }
             delete rows.meta;
 console.log("AR: got %d rows with '%s' in %d (%d ms)", rows.length, sql, t2 - t1, info.duration_ms, rows);
             next();
