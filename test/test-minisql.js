@@ -26,7 +26,7 @@ describe('minisql', function() {
     var db, packman, chunker, socket, connectStub
     beforeEach(function(done) {
         // FIXME: is testing the Session, not the Db (that manages sessions)
-        db = minisql.createConnection(mockCreds)._getRawDb().getConnection()
+        db = minisql.createConnection(mockCreds)._getRawDb()._getConnection()
         packman = db.packman
         chunker = packman.chunker
         socket = new events.EventEmitter()
