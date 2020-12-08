@@ -25,9 +25,12 @@ var mockCreds = { host: 'localhost', port: 3306, database: 'test', user: 'user',
 describe('minisql', function() {
     var db, packman, chunker, socket, connectStub
     beforeEach(function(done) {
+        var noop = function(){}
+        var mockSocket = { write: noop, once: noop, end: noop }
         // FIXME: is testing the Session, not the Db (that manages sessions)
         db = minisql.createConnection(mockCreds)._getRawDb()._getConnection()
         packman = db.packman
+        packman._socket = mockSocket
         chunker = packman.chunker
         socket = new events.EventEmitter()
         socket.write = noop
@@ -252,7 +255,7 @@ describe('minisql', function() {
                 qmock.stubOnce(db.packman, 'getPacket').yields(null, packet)
                 db._connect(mockCreds, function(err) {
                     assert.ok(err)
-                    assert.ok(/sequence id 2/.test(err.message))
+                    assert.ok(/sequence num 2/.test(err.message))
                     done()
                 })
             })
@@ -271,11 +274,44 @@ describe('minisql', function() {
         })
 
         describe('_getPacketsEof', function() {
-            it.skip('returns received packets until Eof', function() {
-                // WRITEME
+            it('returns received packets until, but not including, Eof', function(done) {
+                qmock.stub(db.packman, 'getPacket')
+                  .onCall(0).yields(null, fromBuf([1, 0, 0, 1, 7]))
+                  .onCall(1).yields(null, fromBuf([1, 0, 0, 2, 8]))
+                  .onCall(2).yields(null, fromBuf([1, 0, 0, 3, my.myHeaders.EOF])) // error packet
+                db._getPacketsEof(null, 1, function(err, packets, seqId) {
+                    assert.ifError(err)
+                    assert.equal(seqId, 4)
+                    assert.equal(packets.length, 2)
+                    assert.deepEqual(packets[0], fromBuf([1, 0, 0, 1, 7]))
+                    assert.deepEqual(packets[1], fromBuf([1, 0, 0, 2, 8]))
+                    done()
+                })
             })
-            it.skip('returns received packets until OK', function() {
-                // WRITEME
+            it('returns received packets until OK', function(done) {
+                qmock.stub(db.packman, 'getPacket')
+                  .onCall(0).yields(null, fromBuf([1, 0, 0, 1, 7]))
+                  .onCall(1).yields(null, fromBuf([1, 0, 0, 2, 8]))
+                  .onCall(2).yields(null, fromBuf([1, 0, 0, 3, my.myHeaders.OK])) // ok packet
+                db._getPacketsEof(null, 1, function(err, packets, seqId) {
+                    assert.ifError(err)
+                    assert.equal(seqId, 4)
+                    assert.equal(packets.length, 2)
+                    assert.deepEqual(packets[0], fromBuf([1, 0, 0, 1, 7]))
+                    assert.deepEqual(packets[1], fromBuf([1, 0, 0, 2, 8]))
+                    done()
+                })
+            })
+            it('returns error on invalid sequence id', function(done) {
+                qmock.stub(db.packman, 'getPacket')
+                  .onCall(0).yields(null, fromBuf([1, 0, 0, 3, 7]))
+                  .onCall(1).yields(null, fromBuf([1, 0, 0, 2, my.myHeaders.OK]))
+                db._getPacketsEof(null, 3, function(err, packets) {
+                    assert.ok(err)
+                    assert.ok(err instanceof Error)
+                    assert.ok(/sequence num 2.*expected 4/.test(err.message))
+                    done()
+                })
             })
             it('returns Error packet as err', function(done) {
                 var errPacket = [9, 0, 0, 3, 255, 0, 4, 35, 48, 48, 48, 48, 48, 69, 69, 69]
@@ -283,10 +319,11 @@ describe('minisql', function() {
                   .onCall(0).yields(null, fromBuf([1, 0, 0, 1, 7]))
                   .onCall(1).yields(null, fromBuf([1, 0, 0, 2, 8]))
                   .onCall(2).yields(null, errPacket)
-                db._getPacketsEof(null, function(err, packets) {
+                db._getPacketsEof(null, 1, function(err, packets, seqId) {
                     assert.ok(err)
                     assert.deepEqual(packets, [fromBuf([1, 0, 0, 1, 7]), fromBuf([1, 0, 0, 2, 8])])
                     assert.equal(err, errPacket)
+                    assert.equal(seqId, 4) // next sequence number in this chain
                     done()
                 })
             })
