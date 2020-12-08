@@ -212,6 +212,7 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.10.0 - setup/teardowns happen in db, destroy conn on seq num error, expose sessionDb not connection
 - 0.9.2 - return info from runQueries too, have end() close all and return all errors
 - 0.9.1 - faster pipelined query read queueing, always return query info
 - 0.9.0 - return query info to query and deprecate qureyInfo, expose runQueries
