@@ -1,6 +1,8 @@
 language: node_js
 node_js:
-  - 0.7
+  # - 0.7 # travis-ci crashes on this:
+  # /home/travis/.travis/functions: line 109: 23305 Segmentation fault (core dumped) npm install -g qnit
+  - 0.8
   - 5
   - 10
   - 15
