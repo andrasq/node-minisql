@@ -119,7 +119,7 @@ Calls the `whenConnected` notification when the connection is ready to use.
 The `setup` sql commands are run on every newly opened connection.  Any `setup` step error
 is passed `whenConnected` and stops running any more setup steps.
 
-### conn = db.query( sql, [params,] callback(err, results, queryInfo) )
+### db.query( sql, [params,] callback(err, results, queryInfo) )
 
 Run the SQL query on the server, and return its response.  The response may be a an array of
 rows or a status.  The params array, if provided, will be interpolated into the query string
@@ -136,7 +136,7 @@ Some MySQL queries have connection-local side-effects.  Queries that rely on suc
 state can either get a preassigned connection with `db.getConnection()` or can chain queries
 with `info.conn.query` to restrict them all to the same connection.
 
-    conn = db.query('SELECT * FROM test LIMIT ?', [10], function(err, rows, info) {
+    db.query('SELECT * FROM test LIMIT ?', [10], function(err, rows, info) {
         // => up to 10 rows, each row an array of values
         // => info = { duration_ms: 3.52, columnNames: ['a', 'b'], conn: [Object] }
     })
@@ -147,7 +147,7 @@ Run each of the sql statements back to back.  Does not deliver results, but can 
 useful for configuring a connection or setting up test scenarios.  A query error stops
 the chain and is returned to the callback.
 
-### conn = db.getConnection( )
+### dbConn = db.getConnection( )
 
 Obtain a db handle that talks to a single connection.  The returned connection has all the
 same methods of `db` but always uses the same connection.  The management methods `connect`
