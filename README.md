@@ -45,38 +45,26 @@ Example
         })
     })
 
-Single connection on verion 0.7.0, `node-v14.9.0 ./test/benchmark.js`:
+Single- and 2-connection consecutive and 5-deep pipelined queries on version
+`0.10.0` with `node-v14.15.1`:
 
-    qtimeit=0.22.2 node=14.9.0 v8=8.4.371.19-node.13 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
-    arch=x64 mhz=4492[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
-    -------- SELECT 1, "series", 3.5
-    mysql        27,558 ops/sec   1023 >>>>>>>>>>
-    mysql2       41,327 ops/sec   1534 >>>>>>>>>>>>>>>
-    mariadb      49,097 ops/sec   1822 >>>>>>>>>>>>>>>>>>
-    mysqule      65,165 ops/sec   2418 >>>>>>>>>>>>>>>>>>>>>>>>
-    -------- SELECT 1, "parallel", 3.5
-    mysql        29,753 ops/sec   1000 >>>>>>>>>>
-    mysql2       42,727 ops/sec   1436 >>>>>>>>>>>>>>
-    mariadb     105,797 ops/sec   3556 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqule     115,937 ops/sec   3897 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-Multi-connection `{ connections: 6 }` on version 0.8.0, `node-v14.15.1`:
-
-    mysqule 0.8.0
-    mysqule 0.8.0
-    mysql 2.18.1
-    mariadb 2.0.3
-
-    -------- SELECT COUNT(*), "pipelined" FROM information_schema.collations
     qtimeit=0.22.2 node=14.15.1 v8=8.4.371.19-node.17 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
-    arch=x64 mhz=4507[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
-    timeGoal=0.75 opsPerTest=10 forkTests=false
+    arch=x64 mhz=4490[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
+    timeGoal=3.45 opsPerTest=1 forkTests=false
+    -------- SELECT 1, "series", 3.5
     name             speed           rate
-    mysql            5,593 ops/sec   1023 >>>>>>>>>>
-    mysql2           5,846 ops/sec   1069 >>>>>>>>>>>
-    mariadb          6,398 ops/sec   1170 >>>>>>>>>>>>
-    mysqule          6,397 ops/sec   1170 >>>>>>>>>>>>
-    mysqulePar      26,569 ops/sec   4860 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysql           26,773 ops/sec   1014 >>>>>>>>>>
+    mysql2          39,417 ops/sec   1493 >>>>>>>>>>>>>>>
+    mariadb         45,860 ops/sec   1737 >>>>>>>>>>>>>>>>>
+    mysqule         61,483 ops/sec   2329 >>>>>>>>>>>>>>>>>>>>>>>
+    mysqulePar      61,359 ops/sec   2325 >>>>>>>>>>>>>>>>>>>>>>>
+    -------- SELECT 1, "pipelined", 3.5
+    timeGoal=3.45 opsPerTest=5 forkTests=false
+    mysql           27,922 ops/sec   1000 >>>>>>>>>>
+    mysql2          42,024 ops/sec   1505 >>>>>>>>>>>>>>>
+    mariadb         84,424 ops/sec   3024 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqule        100,413 ops/sec   3596 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqulePar     112,103 ops/sec   4015 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api
@@ -178,7 +166,7 @@ Observations
 - it is slightly faster to buf.copy concat than to Buffer.concat (1-2%, but not as visible on huge concats)
   Of a 160ms response chunk concat is 3.2ms (and packet merge another 3.7ms), so dedicated raw mode support
     would save 6.9ms / 160ms = 4.3%
-- tune the common cases: optimizing partial-chunk packets netted another 10% speedup, from 52k to 58k/s v10, 59k to 65k/s v14.
+- tune the common cases: optimizing sub-chunk packets netted another 10% speedup, from 52k to 58k/s v10, 59k to 65k/s v14.
   This might be a common occurrence for even small serial queries, also a bit piplined queries
   (effect is too large to be the 3-5% caching effect often seen with nodejs)
 - mapping the row values into a hash of key-value pairs slows queries 6-8% (still faster than mariadb)
@@ -204,9 +192,9 @@ Ideas and Todo
 --------------
 
 - automatic reconnect (on timeout and error)
-- reset connection on packet errors
 - canonicalize various status responses from non-query calls eg insert, update, load
 - add support for load data local infile
+- change pool policy to first-available (not round-robin; needs async getConnection)
 
 
 Changelog
