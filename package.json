@@ -1,6 +1,6 @@
 {
   "name": "mysqule",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "small, quick mysql database bindings",
   "license": "Apache-2.0",
   "main": "lib/minisql",
