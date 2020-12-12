@@ -36,6 +36,7 @@ console.log("AR: Starting.");
 var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
 var parallelCount = 10;
+var connectionCount = 2;
 utils.runSteps([
     function(next) {
         if (!mysqule) return next();
@@ -45,7 +46,7 @@ utils.runSteps([
     function(next) {
         if (!mysqule) return next();
         console.log("mysqule %s", require('../package.json').version);
-        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: 2 }, creds, creds)).connect(next);
+        dbMysqulePar = mysqule.createConnection(utils.extractTo({ connections: connectionCount }, creds, creds)).connect(next);
     },
     function(next) {
         if (!mysql) return next();

@@ -11,10 +11,10 @@ Still somewhat experimental, but reads and writes the database.  _Work in progre
 * low latency (< 0.2 ms response)
 * command pipelining (115k / sec)
 * connection pooling (145k / sec)
+* "smarter lru" connection scheduling
 * parameter interpolation
 * configurable connection setup / teardown
 * nodejs v0.7 - v15
-
 
 Overview
 --------
@@ -194,12 +194,12 @@ Ideas and Todo
 - automatic reconnect (on timeout and error)
 - canonicalize various status responses from non-query calls eg insert, update, load
 - add support for load data local infile
-- change pool policy to first-available (not round-robin; needs async getConnection)
 
 
 Changelog
 ---------
 
+- 0.10.3 - smarter lru connection scheduling
 - 0.10.2 - fix boolean/null/date `?` interpolation, remove SessionList and notifyState
 - 0.10.0 - setup/teardowns happen in db, destroy conn on seq num error, expose sessionDb not connection
 - 0.9.2 - return info from runQueries too, have end() close all and return all errors
