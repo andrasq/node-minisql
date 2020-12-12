@@ -11,9 +11,10 @@ if (!/quicktest/.test(require('path').basename(process.argv[1]))) return
 
 var util = require('util')
 var qibl = require('qibl')
-//var mariadb = require('mariadb'); var minisql = mariasql()
+//var mysqlNative = require('mysql-native'); var minisql = nativesql() // NOTE: breaks with node-v7 and newer
 //var minisql = require('mysql')
 //var minisql = require('mysql2')
+//var mariadb = require('mariadb'); var minisql = mariasql()
 var minisql = require('../')
 var utils = require('../lib/utils')
 
@@ -121,7 +122,7 @@ console.log("AR: parallel %d queries of '%s' in total %d ms: %d avg", limit, _sq
     })(i);
 }
 
-// adapt mariadb to callbacks to run the benchmark
+// adapt mariadb to mysql callback semantics so it can run the benchmark
 function mariasql() { try {
     return {
         createConnection: function(creds) {
@@ -143,3 +144,34 @@ function mariasql() { try {
         }
     }
 } catch (e) { } }
+
+// adapt mysql-native to mysql callback semantics
+// Note that mysql-native stopped working with node-v7
+//    (Object.inherits: The "superCtor" argument must be of type Function)
+function nativesql() {
+    return {
+        createConnection: function(creds) {
+            var db = {
+                _db: null,
+                connect: function(cb) {
+                    db._db = mysqlNative.createTCPClient() // default localhost:3306
+                    db._db.auto_prepare = true
+                    db._db.auth(creds.database, creds.user, creds.password)
+                    cb()
+                },
+                query: function(sql, cb, x) {
+                    var emitter = x === undefined ? db._db.query(sql, cb) : db._db.query(sql, cb, x)
+                    var rows = []
+                    emitter.on('row', function(row) { rows.push(row) })
+                    emitter.on('end', function() { cb(null, rows) })
+                    emitter.on('error', cb)
+                },
+                end: function(cb) {
+                    db._db.close()
+                    cb && cb()
+                },
+            }
+            return db
+        }
+    }
+}
