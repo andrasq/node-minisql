@@ -120,13 +120,62 @@ describe('integration tests', function() {
         })
     })
 
-    describe('ping', function() {
-        it('gets response from db', function(done) {
-            db.ping(function(err, res) {
-                assert.ifError(err)
-                assert.ok(res)
+    describe('Db calls', function() {
+        var localCreds = utils.assignTo({ connections: 2, database: 'test' }, creds)
+        var db
+
+        // stateful sequence of tests
+        function runTests(db) {
+            it('setup: get db to use', function(done) {
+                db.connect(done)
+            })
+            it('can getConnection', function(done) {
+                var conn = db.getConnection()
+                var conn2 = db.getConnection()
+                var conn3 = db.getConnection()
+                assert.equal(conn.getConnection(), conn)
+                assert.ok(conn === conn2 || conn === conn3)
                 done()
             })
+            it('can ping', function(done) {
+                db.ping(function(err, ret) {
+                    assert.ifError(err)
+                    assert.ok(ret)
+                    assert.ok(typeof ret.affectedRows, 'number')
+                    assert.ok(typeof ret.info, 'string')
+                    done()
+                })
+            })
+            it('can runQueries', function(done) {
+                db.runQueries([
+                    'create temporary table _test (x int)',
+                    'insert into _test values (1), (2)',
+                ], done)
+            })
+            it('can query', function(done) {
+                db.query('select * from _test', function(err, rows) {
+                    assert.ifError(err)
+                    assert.deepEqual(rows, [[1], [2]])
+                    done()
+                })
+            })
+            it('can _select', function(done) {
+                db._select('select * from _test', function(err, rows) {
+                    assert.ifError(err)
+                    assert.deepEqual(rows, [{x: 1}, {x: 2}])
+                    done()
+                })
+            })
+            it('can end', function(done) {
+                db.end(done)
+            })
+        }
+
+        describe('on the db', function() {
+            runTests(minisql.createConnection(localCreds))
+        })
+        describe('on a connection', function() {
+            runTests(minisql.createConnection(localCreds).getConnection())
         })
     })
 
@@ -379,15 +428,6 @@ describe('integration tests', function() {
                 function _call(cb) {
                     db.query('SELECT 1', cb)
                 }
-            })
-        })
-    })
-    describe('select', function() {
-        it('returns hashes', function(done) {
-            db._select('SELECT 1 AS a, "two" as be, 3.5 as cee', function(err, rows) {
-                assert.ifError(err)
-                assert.deepEqual(rows[0], { a: 1, be: 'two', cee: 3.5 })
-                done()
             })
         })
     })
