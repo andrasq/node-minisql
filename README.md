@@ -194,6 +194,7 @@ Ideas and Todo
 - automatic reconnect (on timeout and error)
 - canonicalize various status responses from non-query calls eg insert, update, load
 - add support for load data local infile
+- db.reconnect() call to add connections to the pool
 
 
 Changelog
