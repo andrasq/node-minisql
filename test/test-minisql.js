@@ -396,37 +396,19 @@ describe('minisql', function() {
                 // 100k queries prepared in 160ms (60ms if no args) lowers the 100k/s db rate to 90k/s
                 // NOTE: could be lowered to 90ms by using template-specific interpolation functions
             })
-            it.skip('queues reader if busy reading', function(done) {
-// FIXME: was a _readResult test, needs to be adapted to query()
-                var conn = db.getConnection()
+            it('queues readers in order if connection is busy', function(done) {
+                var conn = db // this file initializes db to a Session
                 conn.isReading = true
                 var cb = function() {}
                 assert.equal(conn.readWaitlist.size() , 0) // empty before
-                conn._readResult('select something', 1, 1234.5, cb)
-                assert.equal(conn.readWaitlist.size(), 1) // not empty after
-                assert.deepEqual(conn.readWaitlist.peekAt(0), ['select something', 1, 1234.5, cb])
-                //assert.equal(conn.readWaitlist.peekAt(0)[0], 'select "something"')
-                //assert.equal(conn.readWaitlist.peekAt(0)[3], cb)
+                conn.query('select something', cb)
+                conn.query('select something else', cb)
+                assert.equal(conn.readWaitlist.size(), 2)  // not empty after
+                assert.deepEqual(conn.readWaitlist.peekAt(0)[0], 'select something')
+                assert.deepEqual(conn.readWaitlist.peekAt(0)[3], cb)
+                assert.deepEqual(conn.readWaitlist.peekAt(1)[0], 'select something else')
+                assert.deepEqual(conn.readWaitlist.peekAt(1)[3], cb)
                 done()
-            })
-            it.skip('serializes calls', function(done) {
-// FIXME: another _readResult test, unmodified
-                var callTimes = []
-                qmock.stub(db.packman, 'getPacket',
-                    function(cb) {
-                        callTimes.push(utils.microtime())
-                        var packet = my.convertErrorToPacket(new Error('mock'))
-                        setTimeout(function() { cb(null, packet) }, 5)
-                    })
-                var ndone = 0, ncalls = 40
-                for (var i = 0; i < ncalls; i++) db._readResult('test query', 1, utils.microtime(), function(err, ret) {
-                    if (++ndone === ncalls) {
-                        assert.equal(callTimes.length, ncalls)
-                        // allow up to 2 ms jitter, especially on older node
-                        for (var i = 1; i < callTimes.length; i++) assert.ok(callTimes[i] > callTimes[i - 1] + 3)
-                        done()
-                    }
-                })
             })
         })
 
