@@ -37,6 +37,8 @@ var str200k = 'str200k-' + (new Array(2e5 + 1 - 8).join('x'));
 var sql;
 var parallelCount = 10;
 var connectionCount = 2;
+var loopCount = 3;
+timeit.bench.timeGoal = .45;
 utils.runSteps([
     function(next) {
         if (!mysqule) return next();
@@ -135,8 +137,6 @@ function(err) {
 function runQuery( sql, params, callback ) { runQueryPipelined(sql, 1, params, callback ) }
 function runQueryPipelined(sql, count, params, callback) {
     console.log("\n-------- %s", sql.length > 80 ? sql.slice(0, 80) + '...' : sql);
-    var loopCount = 3;
-    timeit.bench.timeGoal = .45;
     timeit.bench.verbose = 1;
     timeit.bench.visualize = true;
     timeit.bench.bargraphScale = 10;
