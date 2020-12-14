@@ -46,25 +46,24 @@ Example
     })
 
 Single- and 2-connection consecutive and 5-deep pipelined queries on version
-`0.10.0` with `node-v14.15.1`:
+`0.10.5` with `node-v14.15.1`:
 
     qtimeit=0.22.2 node=14.15.1 v8=8.4.371.19-node.17 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
-    arch=x64 mhz=4490[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
+    arch=x64 mhz=4474[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
     timeGoal=3.45 opsPerTest=1 forkTests=false
     -------- SELECT 1, "series", 3.5
     name             speed           rate
-    mysql           26,773 ops/sec   1014 >>>>>>>>>>
-    mysql2          39,417 ops/sec   1493 >>>>>>>>>>>>>>>
-    mariadb         45,860 ops/sec   1737 >>>>>>>>>>>>>>>>>
-    mysqule         61,483 ops/sec   2329 >>>>>>>>>>>>>>>>>>>>>>>
-    mysqulePar      61,359 ops/sec   2325 >>>>>>>>>>>>>>>>>>>>>>>
+    mysql           27,405 ops/sec   1000 >>>>>>>>>>
+    mysql2          40,132 ops/sec   1464 >>>>>>>>>>>>>>>
+    mariadb         48,143 ops/sec   1757 >>>>>>>>>>>>>>>>>>
+    mysqule         63,169 ops/sec   2305 >>>>>>>>>>>>>>>>>>>>>>>
+    mysqulePar      61,158 ops/sec   2232 >>>>>>>>>>>>>>>>>>>>>>
     -------- SELECT 1, "pipelined", 3.5
-    timeGoal=3.45 opsPerTest=5 forkTests=false
-    mysql           27,922 ops/sec   1000 >>>>>>>>>>
-    mysql2          42,024 ops/sec   1505 >>>>>>>>>>>>>>>
-    mariadb         84,424 ops/sec   3024 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqule        100,413 ops/sec   3596 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqulePar     112,103 ops/sec   4015 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysql           29,136 ops/sec   1004 >>>>>>>>>>
+    mysql2          42,173 ops/sec   1454 >>>>>>>>>>>>>>>
+    mariadb         95,162 ops/sec   3280 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqule        100,132 ops/sec   3452 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqulePar     115,760 ops/sec   3990 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api
