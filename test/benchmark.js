@@ -86,19 +86,17 @@ utils.runSteps([
     },
     function(next) {
         // var sql = 'SELECT 1';
-        var sql = 'SELECT 1, "series", 3.5';
+        var sql = 'SELECT 1, "series (latency)", 3.5';
         runQuery(sql, null, next);
     },
     /**
     function(next) {
-        // var sql = 'SELECT 1';
         var sql = 'SELECT ?, ?, ?';
         runQuery(sql, [1, "series", 3.5], next);
     },
     **/
     function(next) {
-        // var sql = 'SELECT 1';
-        var sql = 'SELECT 1, "pipelined", 3.5';
+        var sql = 'SELECT 1, "pipelined (throughput)", 3.5';
         runQueryPipelined(sql, parallelCount, null, next);
     },
     function(next) {
