@@ -84,6 +84,7 @@ utils.runSteps([
             next()
         })
     },
+
     function(next) {
         // var sql = 'SELECT 1';
         var sql = 'SELECT 1, "series (latency)", 3.5';
@@ -99,6 +100,11 @@ utils.runSteps([
         var sql = 'SELECT 1, "pipelined (throughput)", 3.5';
         runQueryPipelined(sql, parallelCount, null, next);
     },
+    function(next) {
+        var sql = 'SELECT 1, "pipelined (scaling)", 3.5, SLEEP(.00001)';
+        runQueryPipelined(sql, parallelCount, null, next);
+    },
+
     function(next) {
         var sql = 'SELECT COUNT(*), "pipelined", 3.5 FROM _collations_copy';
         runQueryPipelined(sql, parallelCount, null, next);
