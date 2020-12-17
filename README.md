@@ -45,25 +45,25 @@ Example
         })
     })
 
-Single- and 2-connection consecutive and 5-deep pipelined queries on version
-`0.10.5` with `node-v14.15.1`:
+Single- and 2-connection consecutive and 10-deep pipelined queries on version
+`0.10.6` with `node-v14.15.1`:
 
     qtimeit=0.22.2 node=14.15.1 v8=8.4.371.19-node.17 platform=linux kernel=5.8.0-trunk-amd64 up_threshold=false
-    arch=x64 mhz=4474[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
-    timeGoal=3.45 opsPerTest=1 forkTests=false
-    -------- SELECT 1, "series", 3.5
-    name             speed           rate
-    mysql           27,405 ops/sec   1000 >>>>>>>>>>
-    mysql2          40,132 ops/sec   1464 >>>>>>>>>>>>>>>
-    mariadb         48,143 ops/sec   1757 >>>>>>>>>>>>>>>>>>
-    mysqule         63,169 ops/sec   2305 >>>>>>>>>>>>>>>>>>>>>>>
-    mysqulePar      61,158 ops/sec   2232 >>>>>>>>>>>>>>>>>>>>>>
-    -------- SELECT 1, "pipelined", 3.5
-    mysql           29,136 ops/sec   1004 >>>>>>>>>>
-    mysql2          42,173 ops/sec   1454 >>>>>>>>>>>>>>>
-    mariadb         95,162 ops/sec   3280 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqule        100,132 ops/sec   3452 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    mysqulePar     115,760 ops/sec   3990 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    arch=x64 mhz=4494[os] cpuCount=16 cpu="AMD Ryzen 7 3800X 8-Core Processor"
+    timeGoal=8.45 opsPerTest=1 forkTests=false
+    -------- SELECT 1, "series (latency)", 3.5
+    mysql           27,071 ops/sec   1000 >>>>>>>>>>
+    mysql2          39,410 ops/sec   1456 >>>>>>>>>>>>>>>
+    mariadb         47,656 ops/sec   1760 >>>>>>>>>>>>>>>>>>
+    mysqule         59,705 ops/sec   2205 >>>>>>>>>>>>>>>>>>>>>>
+    mysqulePar      61,569 ops/sec   2274 >>>>>>>>>>>>>>>>>>>>>>>
+    -------- SELECT 1, "pipelined (throughput)", 3.5
+    timeGoal=8.45 opsPerTest=10 forkTests=false
+    mysql           28,950 ops/sec   1000 >>>>>>>>>>
+    mysql2          41,036 ops/sec   1417 >>>>>>>>>>>>>>
+    mariadb         93,764 ops/sec   3239 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqule        105,254 ops/sec   3636 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    mysqulePar     131,422 ops/sec   4540 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 Api
@@ -199,6 +199,7 @@ Ideas and Todo
 Changelog
 ---------
 
+- 0.10.6 - faster lru connection scheduling
 - 0.10.3 - smarter lru connection scheduling
 - 0.10.2 - fix boolean/null/date `?` interpolation, remove SessionList and notifyState
 - 0.10.0 - setup/teardowns happen in db, destroy conn on seq num error, expose sessionDb not connection
