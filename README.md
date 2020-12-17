@@ -3,10 +3,10 @@ mysqule
 [![Build Status](https://travis-ci.org/andrasq/node-minisql.svg?branch=master)](https://travis-ci.org/andrasq/node-minisql)
 
 Very small barebones mysql database driver.  The goal was a no-frills, low overhed interface to
-the database command line.  The current version 0.5.0 is 800 lines of javascript, 1/10th the
-size of the traditional packages.  Tested to work with nodejs v0.7 through v15.3.
+the database command line.  Started out as 700 lines of javascript, tiny in comparison.
+Tested to work with nodejs v0.7 through v15.3.
 
-Still somewhat experimental, but reads and writes the database.  _Work in progress._
+Still somewhat experimental.  _Work in progress._
 
 * low latency (< 0.2 ms response)
 * command pipelining (115k / sec)
